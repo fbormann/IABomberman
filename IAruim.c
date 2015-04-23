@@ -10,8 +10,6 @@ int id;
 	//ID do jogo
 int ident;
 
-int porcentagemAleatoria = 5;
-
 int move[5];
 
 	//esta estrutura guarda as posicoes em i e j num tabuleiro
@@ -21,8 +19,11 @@ typedef struct pos
 	int j;
 }pos;
 
-
+pos posIam;
 pos oldPos; //a Posicao anterior do usuario
+
+int jogarbomba; //Verifica se vai jogar bomba nesta posicao ou nao;
+int explodirbomba; //Indica se ira jogar bomba nesta posicao ou nao;
 
 
 pos bombas[3];// guarda as posicoes da bomba;
@@ -34,16 +35,7 @@ int range; //Alcance das bombas;
 // int dy[] = {0,0,-1,0,1};
 
 
-
-
-
 FILE *fp = NULL; //objeto que possui metodos para escrevermos nos objetos;
-
-void lerArquivos();
-
-int fileExists(const char *filename);
-
-void  escrevernoarquivo();
 
 //estrutura do tabuleiro. Como e sabido, os dois primeiros caracteres guardam as informacoes sobre o jogadore e os dois ultimos
 //sobre a presenca de bombas, bonus, etc
@@ -289,8 +281,20 @@ void bealive(int x, int y, int jogarbomba){
 				}
 			}
 		}
-	}
+		}
 	}	
+}
+
+//Arquivo de teste para escrever os dados que possuo;
+void escreverValores(){
+	fp = fopen("valores.txt","a");
+	int i = 0;
+	for(; i  < 5; i++){
+		fprintf(fp," %d ", move[i]);
+	}
+	fprintf(fp,"\n");
+
+	fclose(fp);
 }
 
 	//Escreve os dados das bombas atualizadas no arquivo;
@@ -394,11 +398,8 @@ int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
 
 			break;
 		}
-
-
 	}
 	return retorno;
-
 		//Checar se o usuario esta distante da ultima bomba ou nao;
 }
 
@@ -424,19 +425,19 @@ void escreverPosicao(int x , int y){
 
 void checkWays(int playerX,int playerY){
 		if(check(playerX-1,playerY) == 0){ //sobe
-			move[1] -= 10;
+			move[1] -= 1;
 		}
 
 		if(check(playerX,playerY-1) == 0){ //esquerda
-			move[2] -= 10;
+			move[2] -= 1;
 		}
 
 		if(check(playerX+1,playerY) == 0){ //desce
-			move[3] -= 10;
+			move[3] -= 1;
 		}
 
 		if(check(playerX,playerY+1) == 0){ //direta
-			move[4] -= 10;
+			move[4] -= 1;
 		}
 
 	}
@@ -446,18 +447,18 @@ void checkWays(int playerX,int playerY){
 void avoidOldPosition(int x, int y,int jogarbomba){
 	if(jogarbomba == 0){ //Sem soltar bomba
 		if(oldPos.i != x-1 && check(x-1,y)){
-			move[1] += 2;
+			move[1] += 1;
 		}
 		if(oldPos.j != y-1 && check(x,y-1)){
-			move[2] += 2;
+			move[2] += 1;
 		}
 
 		if(oldPos.i != x+1 && check(x+1,y)){
-			move[3] += 2;
+			move[3] += 1;
 		}
 
 		if(oldPos.j != y+1 && check(x,y+1)){
-			move[4] += 2;
+			move[4] += 1;
 		}
 	}
 }
@@ -481,53 +482,30 @@ int MAIOR(int *vec)
 */
 void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 
-	if(distance(playerX,enemyX,playerY,enemyY) > 2){ //This will be changed to the range of my bomb 
+	if(qtd_bombas == 0 && jogarbomba == 0){
 		if(check(playerX-1,playerY)){ //sobe
-			if(distance(playerX-1,enemyX,playerY,enemyY) <  distance(playerX,enemyX,playerY,enemyY)){
-				move[1] += 1;
-
-				if(playerX > enemyX && bombas[0].i != playerX){
-					move[1] += 2; //It holds more weight
+				if(playerX > enemyX){
+					move[1] += 1; //It holds more weight
 				}
-				
-			}
 		}
 
-
 		if(check(playerX,playerY-1)){ //esquerda
-			if(distance(playerX,enemyX,playerY-1,enemyY) <  distance(playerX,enemyX,playerY,enemyY)){
-				move[2] += 1;
-
-				if(playerY > enemyY && bombas[0].j != playerY){
-					move[2] += 2; //It holds  more weight
+				if(playerY > enemyY ){
+					move[2] += 1; //It holds  more weight
 				}
-				
-			}
 		}
 
 
 		if(check(playerX+1,playerY)){ //desce
-			if(distance(playerX+1,enemyX,playerY,enemyY) <  distance(playerX,enemyX,playerY,enemyY)){
-				move[3] += 1;
-
-
-				if(playerX < enemyX  && bombas[0].i != playerX){ // This bombas[0].i /or j != playerX or Y is because it's starting a loop
-					move[3] += 2;
+				if(playerX < enemyX ){ // This bombas[0].i /or j != playerX or Y is because it's starting a loop
+					move[3] += 1;
 				}
-				
-			}
 		}
 
 		if(check(playerX,playerY+1)){ //direita
-			if(distance(playerX,enemyX,playerY+1,enemyY) <  distance(playerX,enemyX,playerY,enemyY)){
-				move[4] += 1;
-
-
 				if(playerY < enemyY  && bombas[0].j != playerY){
-					move[4] += 2;
+					move[4] += 1;
 				}
-				
-			}
 		}
 	}
 }
@@ -546,33 +524,24 @@ int findSize(int x, int y, int size,int sizeFound,int oldx,int oldy){
 		return sizeFound;
 	}
 
-	if(check(x-1,y) && oldx != x-1){
+	if(check(x-1,y) && posIam.i != x-1 && (sizeFound < size) && oldx != x-1){
 		ways++;
-		if(sizeFound < size){
-			sizeFound = findSize(x-1,y,size,sizeFound+1,x,y);
-		}
+		sizeFound += findSize(x-1,y,size,sizeFound+1,x,y);
 	}
 
-	if(check(x,y-1) && oldy != y-1){
-		ways++;
-		if(sizeFound < size){
-			sizeFound = findSize(x,y-1,size,sizeFound+1,x,y);
-		}
+	if(check(x,y-1) && posIam.j != y-1 && (sizeFound < size) && oldy != y-1){
+		sizeFound += findSize(x,y-1,size,sizeFound+1,x,y);
+		
 	}
 
-	if(check(x+1,y) && oldx != x+1){
+	if(check(x+1,y) && posIam.i != x+1 && (sizeFound < size) && oldx != x+1){
 		ways++;
-		if(sizeFound < size){
-			sizeFound = findSize(x+1,y,size,sizeFound+1,x,y);
-		}
-
+		sizeFound += findSize(x+1,y,size,sizeFound+1,x,y);
 	}
 
-	if(check(x,y+1) && oldy != y+1){
+	if(check(x,y+1) && posIam.j != y+1 && (sizeFound < size) && oldy != y-1){
 		ways++;
-		if(sizeFound < size){
-			sizeFound = findSize(x,y+1,size,sizeFound+1,x,y);
-		}
+		sizeFound += findSize(x,y+1,size,sizeFound+1,x,y);
 	}
 
 
@@ -585,8 +554,6 @@ int findSize(int x, int y, int size,int sizeFound,int oldx,int oldy){
 	}else{
 		return 0;
 	}
-	
-	
 }
 
 
@@ -597,9 +564,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	int i;
 	int where;
 
-	int jogarbomba; //Verifica se vai jogar bomba nesta posicao ou nao;
-	int explodirbomba; //Indica se ira jogar bomba nesta posicao ou nao;
-
+	
 
 	//convercao dos identificadores
     	id = atoi(argv[1]);	//identificador do Jogador
@@ -624,64 +589,51 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
     	}
 
-    porcentagemAleatoria = rand() %100;
-    if(porcentagemAleatoria > 4){
-
     	enemyPos = cur_pos(enemyS);
     	lerPosicao();
+	posIam = cur_pos(s);
+	cur = cur_pos(s); // o parametro a ser passado depende se o jogador atual e 1 o 2
+	lerBombas(); //Antes de inicializar qualquer decisao
 
-		cur = cur_pos(s); // o parametro a ser passado depende se o jogador atual e 1 o 2
-
-		lerBombas(); //Antes de inicializar qualquer decisao
-
-		jogarbomba = soltarbomba(cur.i,cur.j,enemyPos.i,enemyPos.j);
-		if(jogarbomba){
-			if(check(cur.i-1,cur.j)){
-				if(findSize(cur.i-1,cur.j,5,0,cur.i,cur.j) == 0 ){
-					move[1] -= 10; 
-				}
-			}
-
-			if(check(cur.i,cur.j-1)){
-				if(findSize(cur.i,cur.j-1,5,0,cur.i,cur.j) == 0){
-					move[2] -= 10;
-				}
-			}
-
-			if(check(cur.i+1,cur.j)){
-				if(findSize(cur.i+1,cur.j,5,0,cur.i,cur.j) == 0){
-					move[3] -= 10; 
-				}
-			}
-
-
-			if(check(cur.i,cur.j+1)){
-				if(findSize(cur.i,cur.j+1,5,0,cur.i,cur.j) == 0){
-					move[4] -= 10; 
-				}
+	jogarbomba = soltarbomba(cur.i,cur.j,enemyPos.i,enemyPos.j);
+	if(jogarbomba){
+		if(check(cur.i-1,cur.j)){
+			if(findSize(cur.i-1,cur.j,5,0,cur.i,cur.j) == 0 ){
+				move[1] -= 10; 
 			}
 		}
-		bealive(cur.i,cur.j,jogarbomba);
-		checkWays(cur.i,cur.j);
-		getcloser(enemyPos.i,enemyPos.j,cur.i,cur.j);
-	
-		avoidOldPosition(cur.i,cur.j,jogarbomba); //Solucao Temporatoria 
-		where = MAIOR(move);
-		escreverPosicao(cur.i,cur.j);
-		explodirbomba = goexplodirbomba(cur.i,cur.j,where,enemyPos.i,enemyPos.j);
-		escreverBombas(); //Apos finalizar as decisoes
+		if(check(cur.i,cur.j-1)){
+			if(findSize(cur.i,cur.j-1,5,0,cur.i,cur.j) == 0){
+				move[2] -= 10;
+			}
+		}
 
-	}else{
-		lerBombas();
-		where = porcentagemAleatoria % 5;
+		if(check(cur.i+1,cur.j)){
+			if(findSize(cur.i+1,cur.j,5,0,cur.i,cur.j) == 0){
+				move[3] -= 10; 
+			}
+		}
 
-		explodirbomba = 0;
-
-		escreverBombas();
-
+		if(check(cur.i,cur.j+1)){
+			if(findSize(cur.i,cur.j+1,5,0,cur.i,cur.j) == 0){
+				move[4] -= 10; 
+			}
+		}
 	}
+	bealive(cur.i,cur.j,jogarbomba);
+	checkWays(cur.i,cur.j);
+	getcloser(enemyPos.i,enemyPos.j,cur.i,cur.j);
+
+	avoidOldPosition(cur.i,cur.j,jogarbomba); //Solucao Temporatoria 
+	where = MAIOR(move);
+	escreverPosicao(cur.i,cur.j);
+	explodirbomba = goexplodirbomba(cur.i,cur.j,where,enemyPos.i,enemyPos.j);
+	escreverBombas(); //Apos finalizar as decisoes
+
+	
+	escreverValores();
 	//impressao da saida
-	printf("%d %d %d %d\n",ident,jogarbomba, where,explodirbomba);
+	printf("%d %d %d %d \n",ident,jogarbomba, where,explodirbomba);
 
 
 	return 0;
