@@ -10,6 +10,8 @@ int id;
 	//ID do jogo
 int ident;
 
+int modificacao;
+
 int move[5];
 
 	//esta estrutura guarda as posicoes em i e j num tabuleiro
