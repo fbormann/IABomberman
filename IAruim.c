@@ -78,7 +78,7 @@ pos cur_pos(char* player)
 {
 	pos posi;
 	int i,j;
-	for(i = 0; i < 11; i++)
+	for(i = 0; i < 11; i++){
 		for(j = 0; j < 13; j++)
 		{
 			if(strcmp(tab[i][j].str1, player) == 0 || strcmp(tab[i][j].str1, "B3") == 0 )
@@ -89,6 +89,7 @@ pos cur_pos(char* player)
 			}
 		}
 	}
+}
 
 
 /*
