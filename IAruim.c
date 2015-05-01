@@ -21,6 +21,12 @@ typedef struct pos
 	int j;
 }pos;
 
+typedef struct info_bomba
+{
+	int i, j;
+	int range;
+}info_bomba;
+
 pos posIam;
 pos oldPos; //a Posicao anterior do usuario
 
