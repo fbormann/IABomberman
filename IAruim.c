@@ -23,7 +23,8 @@ typedef struct pos
 
 typedef struct info_bomba
 {
-	int i, j;
+	int i;
+	int j;
 	int range;
 }info_bomba;
 
@@ -33,10 +34,10 @@ pos oldPos; //a Posicao anterior do usuario
 int jogarbomba; //Verifica se vai jogar bomba nesta posicao ou nao;
 int explodirbomba; //Indica se ira jogar bomba nesta posicao ou nao;
 
-
-pos bombas[3];// guarda as posicoes da bomba;
+//no maximmo pode ter 5 bombas(TMB)
+info_bomba bombas[5];// guarda as posicoes da bomba;
 int qtd_bombas = 0;
-int range; //Alcance das bombas;
+int range = 2; //Alcance das bombas;
 
 //vetores de deslocamento. {parado, sobe, esquerda, desce, direita}
 // int dx[] = {0,-1,0,1,0};
@@ -147,6 +148,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 		if(impossibleWays == 3 || ( x == enemyX  && (distance(x,enemyX,y,enemyY) < 4))|| (y == enemyY && (distance(x,enemyX,y,enemyY) < 4))){ //If all my surroundings are gone then it is better to get rid off it.
 			bombas[qtd_bombas].i = x;
 			bombas[qtd_bombas].j = y;
+			bombas[qtd_bombas].range = range;
 			qtd_bombas++;
 			return 1;
 		}			
@@ -160,6 +162,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 			if(strcmp(tab[x][y+1].str2,"MM") == 0 && (y < enemyY)){ 
 				bombas[qtd_bombas].i = x;
 				bombas[qtd_bombas].j = y;
+				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
 				return 1;
 
@@ -174,6 +177,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 			if(strcmp(tab[x+1][y].str2,"MM") == 0 && (x < enemyX)){ 
 				bombas[qtd_bombas].i = x;
 				bombas[qtd_bombas].j = y;
+				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
 				return 1;
 
@@ -188,6 +192,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 			if(strcmp(tab[x][y-1].str2,"MM") == 0 && (y > enemyY)){ 
 				bombas[qtd_bombas].i = x;
 				bombas[qtd_bombas].j = y;
+				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
 				return 1;
 
@@ -203,6 +208,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 			if(strcmp(tab[x-1][y].str2,"MM") == 0 && (x >  enemyX)){ 
 				bombas[qtd_bombas].i = x;
 				bombas[qtd_bombas].j = y;
+				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
 				return 1;
 
@@ -311,9 +317,9 @@ void escreverBombas(){
 
 	fp = fopen("bombas.txt","w+");
 	int i = 0;
-	fprintf(fp, "%d \n",qtd_bombas);
+	fprintf(fp, "%d %d\n",qtd_bombas,range); //tem que guardar o range atual
 	for(; i  < qtd_bombas; i++){
-		fprintf(fp," %d %d ", bombas[i].i,bombas[i].j);
+		fprintf(fp,"%d %d %d ", bombas[i].range, bombas[i].i,bombas[i].j);
 	}
 
 	fclose(fp);
@@ -325,9 +331,9 @@ void lerBombas(){
 	fp = fopen("bombas.txt","r+");
 	if(fp != NULL){
 		int i = 0;
-		fscanf(fp," %d", &qtd_bombas);
+		fscanf(fp," %d %d", &qtd_bombas, &range);
 		for(; i  < qtd_bombas; i++){
-			fscanf(fp,"%d %d ",&bombas[i].i, &bombas[i].j);
+			fscanf(fp,"%d %d %d ", &bombas[i].range, &bombas[i].i, &bombas[i].j);
 		}
 		fclose(fp);
 	}
