@@ -39,6 +39,12 @@ info_bomba bombas[5];// guarda as posicoes da bomba;
 int qtd_bombas = 0;
 int range = 2; //Alcance das bombas;
 
+info_bomba bombas_enemy[5];
+int qtd_bombas_enemy = 0;
+int range_enemy = 2;
+
+char enemyBomb[3];
+
 //vetores de deslocamento. {parado, sobe, esquerda, desce, direita}
 // int dx[] = {0,-1,0,1,0};
 // int dy[] = {0,0,-1,0,1};
@@ -122,7 +128,7 @@ int checkPos(int x, int y){
 	if(x >= 0 && x < 11 && y >=0 && y <13){
 		return 1;
 	}else
-	return 0;
+		return 0;
 }
 
 	//funcao se determina se devo soltar uma bomba ou nao
@@ -317,11 +323,16 @@ void escreverBombas(){
 
 	fp = fopen("bombas.txt","w+");
 	int i = 0;
+	//nossas bombas
 	fprintf(fp, "%d %d\n",qtd_bombas,range); //tem que guardar o range atual
 	for(; i  < qtd_bombas; i++){
 		fprintf(fp,"%d %d %d ", bombas[i].range, bombas[i].i,bombas[i].j);
 	}
-
+	//bombas do inimigo
+	fprintf(fp, "\n%d %d\n", qtd_bombas_enemy, range_enemy);
+	for(i = 0; i < qtd_bombas_enemy; i++){
+		fprintf(fp, "%d %d %d ", bombas_enemy[i].range, bombas_enemy[i].i, bombas_enemy[i].j);
+	}
 	fclose(fp);
 }
 
@@ -331,9 +342,15 @@ void lerBombas(){
 	fp = fopen("bombas.txt","r+");
 	if(fp != NULL){
 		int i = 0;
+		//nossas bombas
 		fscanf(fp," %d %d", &qtd_bombas, &range);
 		for(; i  < qtd_bombas; i++){
 			fscanf(fp,"%d %d %d ", &bombas[i].range, &bombas[i].i, &bombas[i].j);
+		}
+		//bombas do inimigo
+		fscanf(fp, " %d %d", &qtd_bombas_enemy, &range_enemy);
+		for(i = 0; i < qtd_bombas_enemy; i++){
+			fscanf(fp, "%d %d %d ", &bombas_enemy[i].range, &bombas_enemy[i].i, &bombas_enemy[i].j);
 		}
 		fclose(fp);
 	}
@@ -571,8 +588,79 @@ int findSize(int x, int y, int size,int sizeFound,int oldx,int oldy){
 	}
 }
 
+//verifica se as bombas ainda estão no lugar ou se foram explodidas
+//verifiquem se esta certo
+void verificar_bombas(){
+	int i;
+	for(i = 0; i < qtd_bombas_enemy; i++){
+		if(strcmp(tab[bombas_enemy[i].i][bombas_enemy[i].j].str2, enemyBomb) != 0){
+			//se for o ultimo do array
+			if(i == qtd_bombas_enemy-1){
+				qtd_bombas_enemy--;
+			}else{
+				//igual ao modifyBombs
+				for(;i < qtd_bombas_enemy; i++){
+					bombas_enemy[i] = bombas_enemy[i+1];
+				}
+				qtd_bombas_enemy--;
+			}
+		}
+	}
+}
 
+//recebe a pos do inimigo e verifica se ha bombas por perto
+void bombas_inimigo(int x, int y){
+	if(checkPos(x+1,y)){
+		if(strcmp(tab[x+1][y].str2,enemyBomb) == 0){
+			if(verificar_bombas_inimigo(x+1,y)){
+				bombas_enemy[qtd_bombas_enemy].i = x+1;
+				bombas_enemy[qtd_bombas_enemy].j = y;
+				bombas_enemy[qtd_bombas_enemy].range = range_enemy;
+				qtd_bombas_enemy++;
+			}
+		}
+	}
+	if(checkPos(x,y+1)){
+		if(strcmp(tab[x][y+1].str2,enemyBomb) == 0){
+			if(verificar_bombas_inimigo(x,y+1)){
+				bombas_enemy[qtd_bombas_enemy].i = x;
+				bombas_enemy[qtd_bombas_enemy].j = y+1;
+				bombas_enemy[qtd_bombas_enemy].range = range_enemy;
+				qtd_bombas_enemy++;
+			}
+		}
+	}
+	if(checkPos(x-1,y)){
+		if(strcmp(tab[x-1][y].str2,enemyBomb) == 0){
+			if(verificar_bombas_inimigo(x-1,y)){
+				bombas_enemy[qtd_bombas_enemy].i = x-1;
+				bombas_enemy[qtd_bombas_enemy].j = y;
+				bombas_enemy[qtd_bombas_enemy].range = range_enemy;
+				qtd_bombas_enemy++;
+			}
+		}
+	}
+	if(checkPos(x,y-1)){
+		if(strcmp(tab[x][y-1].str2,enemyBomb) == 0){
+			if(verificar_bombas_inimigo(x,y-1)){
+				bombas_enemy[qtd_bombas_enemy].i = x;
+				bombas_enemy[qtd_bombas_enemy].j = y-1;
+				bombas_enemy[qtd_bombas_enemy].range = range_enemy;
+				qtd_bombas_enemy++;
+			}
+		}
+	}
+}
 
+int verificar_bombas_inimigo(int x, int y){
+	int i;
+	for(i = 0; i < qtd_bombas_enemy; i++){
+		if(bombas_enemy[i].i == x && bombas_enemy[i].j == y){
+			return 0;
+		}
+	}
+	return 1;
+}
 
 int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dessa forma
 {
@@ -602,6 +690,12 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
     		strcpy(enemyS,"P1");
     		strcpy(s,"P2");
 
+    	}
+    	//pra saber qual a bomba do cara
+    	if(strcmp(enemyS,"P1") == 0){
+    		strcpy(enemyBomb,"B1");
+    	}else{
+    		strcpy(enemyBomb,"B2");
     	}
 
     	enemyPos = cur_pos(enemyS);
@@ -635,6 +729,10 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 			}
 		}
 	}
+	//ver as bombas do inimigo
+	verificar_bombas();
+	bombas_inimigo(enemyPos.i,enemyPos.j);
+
 	bealive(cur.i,cur.j,jogarbomba);
 	checkWays(cur.i,cur.j);
 	getcloser(enemyPos.i,enemyPos.j,cur.i,cur.j);
