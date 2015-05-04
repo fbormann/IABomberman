@@ -591,7 +591,7 @@ int findSize(int x, int y, int size,int sizeFound,int oldx,int oldy){
 //verifica se as bombas ainda estão no lugar ou se foram explodidas
 //verifiquem se esta certo
 void verificar_bombas(){
-	int i;
+	int i, j;
 	for(i = 0; i < qtd_bombas_enemy; i++){
 		if(strcmp(tab[bombas_enemy[i].i][bombas_enemy[i].j].str2, enemyBomb) != 0){
 			//se for o ultimo do array
@@ -599,8 +599,8 @@ void verificar_bombas(){
 				qtd_bombas_enemy--;
 			}else{
 				//igual ao modifyBombs
-				for(;i < qtd_bombas_enemy; i++){
-					bombas_enemy[i] = bombas_enemy[i+1];
+				for(j = i+1;j < qtd_bombas_enemy; j++){
+					bombas_enemy[i-1] = bombas_enemy[i];
 				}
 				qtd_bombas_enemy--;
 			}
