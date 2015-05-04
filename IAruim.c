@@ -650,6 +650,16 @@ void bombas_inimigo(int x, int y){
 			}
 		}
 	}
+	if(checkPos(x,y)){
+		if(strcmp(tab[x][y].str2,enemyBomb) == 0){
+			if(verificar_bombas_inimigo(x,y)){
+				bombas_enemy[qtd_bombas_enemy].i = x;
+				bombas_enemy[qtd_bombas_enemy].j = y;
+				bombas_enemy[qtd_bombas_enemy].range = range_enemy;
+				qtd_bombas_enemy++;
+			}
+		}
+	}
 }
 
 int verificar_bombas_inimigo(int x, int y){
