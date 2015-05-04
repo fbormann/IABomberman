@@ -45,6 +45,11 @@ int range_enemy = 2;
 
 char enemyBomb[3];
 
+pos bonus_range[100];
+int qtdBonusRange = 0;
+pos bonus_bombas[100];
+int qtdBonusBomba = 0;
+
 //vetores de deslocamento. {parado, sobe, esquerda, desce, direita}
 // int dx[] = {0,-1,0,1,0};
 // int dy[] = {0,0,-1,0,1};
@@ -670,6 +675,37 @@ int verificar_bombas_inimigo(int x, int y){
 		}
 	}
 	return 1;
+}
+
+void verificarBonus()
+{
+	int i;
+	// Bonus Range
+	for(i = 0; i < qtdBonusRange; i++)
+	{
+		if(strcmp(tab[bonus_range[i].i][bonus_range[i].j].str2, "+F") != 0) 
+		{
+			if(i == qtdBonusRange-1) qtdBonusRange--;
+			else 
+			{
+				bonus_range[i] == bonus_range[qtdBonusRange-1];
+				qtdBonusRange--;
+			} 
+		}
+	}
+	// Bonus Bomba
+	for(i = 0; i < qtdBonusBomba; i++)
+	{
+		if(strcmp(tab[bonus_bombas[i].i][bonus_bombas[i].j].str2, "+F") != 0) 
+		{
+			if(i == qtdBonusBomba-1) qtdBonusBomba--;
+			else 
+			{
+				bonus_bombas[i] == bonus_bombas[qtdBonusBomba-1];
+				qtdBonusBomba--;
+			} 
+		}
+	}
 }
 
 int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dessa forma
