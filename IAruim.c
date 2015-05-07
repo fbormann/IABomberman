@@ -51,8 +51,8 @@ pos bonus_bombas[100];
 int qtdBonusBomba = 0;
 
 //vetores de deslocamento. {parado, sobe, esquerda, desce, direita}
-// int dx[] = {0,-1,0,1,0};
-// int dy[] = {0,0,-1,0,1};
+int dx[] = {0,-1,0,1,0};
+int dy[] = {0,0,-1,0,1};
 
 
 FILE *fp = NULL; //objeto que possui metodos para escrevermos nos objetos;
@@ -68,6 +68,8 @@ typedef struct tabela
 
 //mapa a ser lido.
 tabela tab[11][13];
+//mapa secundario
+tabela tab2[11][13];
 
 
 //funcao que realiza a leitura do mapa. O mapa e passado como entrada padrao pelo programa principal, portanto, nesses casos, usem scanf normalmente.
@@ -90,7 +92,33 @@ void leitura()
 	}
 }
 
-
+// verifica se o mapa secundario eh igual ao mapa principal
+void verificacaoMapaSecundario()
+{
+	int i, j, k;
+	for(i = 0; i<11; i++)
+	{
+		for(j = 0; j<13; j++)
+		{
+			for(k = 0; k<2; k++)
+			{
+				if(strcmp(tab2[i][j].str1[k], tab[i][j].str1[k]) != 0)
+				{
+					//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
+					if(tab2[i][j].str1[k] == 'F') continue;
+					tab2[i][j].str1[k] = tab[i][j].str1[k];
+				}
+				if(strcmp(tab2[i][j].str2[k], tab[i][j].str2[k]) != 0)
+				{
+					//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
+					if(tab2[i][j].str2[k] == 'F') continue;
+					tab2[i][j].str2[k] = tab[i][j].str2[k];
+				}
+				
+			}
+		}
+	}
+}
 
 
 //funcao retorna a posicao corrente de determinado jogador, cuja string (P1 ou P2) e passada como parametro.
