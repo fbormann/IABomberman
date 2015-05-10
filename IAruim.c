@@ -43,6 +43,9 @@ info_bomba bombas_enemy[5];
 int qtd_bombas_enemy = 0;
 int range_enemy = 2;
 
+// nome das nossas bombas
+char bomb[3];
+// nome das bombas do inimigo
 char enemyBomb[3];
 
 pos matinhos[100];
@@ -97,29 +100,29 @@ void leitura()
 }
 
 // verifica se o mapa secundario eh igual ao mapa principal
+<<<<<<< HEAD
 /*
 void verificacaoMapaSecundario()
+=======
+void verificacaoMapaSec()
+>>>>>>> origin/master
 {
 	int i, j, k;
 	for(i = 0; i<11; i++)
 	{
 		for(j = 0; j<13; j++)
 		{
-			for(k = 0; k<2; k++)
+			if(strcmp(tab2[i][j].str1, tab[i][j].str1) != 0)
 			{
-				if(strcmp(tab2[i][j].str1[k], tab[i][j].str1[k]) != 0)
-				{
-					//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
-					if(tab2[i][j].str1[k] == 'F') continue;
-					tab2[i][j].str1[k] = tab[i][j].str1[k];
-				}
-				if(strcmp(tab2[i][j].str2[k], tab[i][j].str2[k]) != 0)
-				{
-					//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
-					if(tab2[i][j].str2[k] == 'F') continue;
-					tab2[i][j].str2[k] = tab[i][j].str2[k];
-				}
-				
+				//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
+				if(strcmp(tab2[i][j].str1, "FF")) continue;
+				tab2[i][j].str1[k] = tab[i][j].str1[k];
+			}
+			if(strcmp(tab2[i][j].str2, tab[i][j].str2) != 0)
+			{
+				//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
+				if(strcmp(tab2[i][j].str2, "FF")) continue;
+				tab2[i][j].str2[k] = tab[i][j].str2[k];
 			}
 		}
 	}
@@ -195,6 +198,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 			bombas[qtd_bombas].j = y;
 			bombas[qtd_bombas].range = range;
 			qtd_bombas++;
+			bombaColocouMapa2(x, y);
 			return 1;
 		}			
 
@@ -209,6 +213,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
+				bombaColocouMapa2(x, y);
 				return 1;
 
 			}
@@ -224,6 +229,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
+				bombaColocouMapa2(x, y);
 				return 1;
 
 			}
@@ -239,6 +245,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
+				bombaColocouMapa2(x, y);
 				return 1;
 
 			}
@@ -255,6 +262,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
+				bombaColocouMapa2(x, y);
 				return 1;
 
 			}
@@ -748,21 +756,75 @@ void verificarBonus()
 	}
 }
 
-//eu vou pegar todas as posições dos matinhos no comeco do jogo e vou guardar num arquivo
-//ai só ficar vendo se algum matinho desse array foi quebrado e verificar se no lugar dele tem um bonus
-//acho que tem um custo melhor do que ficar percorrendo o mapa o tempo inteiro
-void posMatinhos(){
+void bombaColocouMapa2(int x, int y)
+{
+	strcpy(tab2[x][y].str2, bomb);
 	int i, j;
-	if(rodada == 1){
-		for(i = 0; i < 11; i++){
-			for(j = 0; j < 13; j++){
-				if(strcmp(tab[i][j].str2,"MM") == 0){
-					matinhos[qtdMatinhos].i = i;
-					matinhos[qtdMatinhos].j = j;
-					qtdMatinhos++;
-				}
+	for(i = 0; i<range; i++)
+	{
+		for(j = 1; j<5; j++)
+		{
+			if(check(x+(dx[j]*i), y+(dy[j]*i))){
+				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str1, "FF");
+				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "FF");
 			}
 		}
+	}
+}
+
+// metodo para retirar B# e FF da bomba que explodiu
+void bombaExplodiuMapa2()
+{
+	int i = bombas[0].i;
+	int j = bombas[0].j;
+	int range = bombas[0].range;
+	strcpy(tab2[i][j].str2, "--");
+	int k, l;
+	for(k = 1; k<=range; k++)
+	{
+		for(l = 1; l<5; l++)
+		{
+			if(check(i+(dx[l]*k), j+(dy[l]*k)))
+			{
+				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str1, "--");
+				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str2, "--");
+			}
+		}
+	}
+}
+
+void escreverMapa2(){
+
+	fp = fopen("mapa2.txt","w+");
+	int i, j;
+	for(i = 0; i  < 11; i++){
+		for(j = 0; j  < 13; j++){
+			fprintf(fp,"%s%s ", tab2[i][j].str1, tab2[i][j].str2);
+		}
+		fprintf(fp, "\n");
+	}
+	fclose(fp);
+}
+
+	//Le as coordenadas atuais das bombas;
+void lerMapa2(){
+
+	fp = fopen("mapa2.txt","r+");
+	if(fp != NULL){
+		int i, j;
+		for(i = 0; i<11; i++)
+		{
+			for(j = 0; j<13; j++)
+			{
+				char temp[5];
+				fscanf(fp,"%s", temp);
+				tab2[i][j].str1[0] = temp[0];
+				tab2[i][j].str1[1] = temp[1];
+				tab2[i][j].str2[0] = temp[2];
+				tab2[i][j].str2[1] = temp[3];
+			}
+		}
+		fclose(fp);
 	}
 }
 
@@ -787,6 +849,24 @@ void escreverMatinhos(){
 	}
 	fclose(fp);
 
+}
+
+//eu vou pegar todas as posições dos matinhos no comeco do jogo e vou guardar num arquivo
+//ai só ficar vendo se algum matinho desse array foi quebrado e verificar se no lugar dele tem um bonus
+//acho que tem um custo melhor do que ficar percorrendo o mapa o tempo inteiro
+void posMatinhos(){
+	int i, j;
+	if(rodada == 1){
+		for(i = 0; i < 11; i++){
+			for(j = 0; j < 13; j++){
+				if(strcmp(tab[i][j].str2,"MM") == 0){
+					matinhos[qtdMatinhos].i = i;
+					matinhos[qtdMatinhos].j = j;
+					qtdMatinhos++;
+				}
+			}
+		}
+	}
 }
 
 void lerBonus(){
@@ -864,7 +944,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
     	srand(time(NULL));
 
     	leitura();
-
+    	lerMapa2();
 
     	char s[3];
     	char enemyS[3];
@@ -880,7 +960,9 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
     	//pra saber qual a bomba do cara
     	if(strcmp(enemyS,"P1") == 0){
     		strcpy(enemyBomb,"B1");
+    		strcpy(bomb, "B2");
     	}else{
+    		strcpy(bomb, "B1");
     		strcpy(enemyBomb,"B2");
     	}
 
@@ -938,7 +1020,11 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	escreverBombas(); //Apos finalizar as decisoes
 	escreverBonus();
 	escreverMatinhos();
+
+	escreverBombas(); //Apos finalizar as decisoes
+
 	escreverValores();
+	escreverMapa2();
 	//impressao da saida
 	printf("%d %d %d %d \n",ident,jogarbomba, where,explodirbomba);
 
