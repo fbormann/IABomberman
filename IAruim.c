@@ -100,12 +100,7 @@ void leitura()
 }
 
 // verifica se o mapa secundario eh igual ao mapa principal
-<<<<<<< HEAD
-/*
-void verificacaoMapaSecundario()
-=======
 void verificacaoMapaSec()
->>>>>>> origin/master
 {
 	int i, j, k;
 	for(i = 0; i<11; i++)
@@ -127,7 +122,7 @@ void verificacaoMapaSec()
 		}
 	}
 }
-*/
+
 
 
 //funcao retorna a posicao corrente de determinado jogador, cuja string (P1 ou P2) e passada como parametro.
@@ -172,6 +167,23 @@ int checkPos(int x, int y){
 	}else
 		return 0;
 }
+
+void bombaColocouMapa2(int x, int y)
+{
+	strcpy(tab2[x][y].str2, bomb);
+	int i, j;
+	for(i = 0; i<range; i++)
+	{
+		for(j = 1; j<5; j++)
+		{
+			if(check(x+(dx[j]*i), y+(dy[j]*i))){
+				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str1, "FF");
+				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "FF");
+			}
+		}
+	}
+}
+
 
 	//funcao se determina se devo soltar uma bomba ou nao
 int soltarbomba(int x, int y,int enemyX,int enemyY){
@@ -752,22 +764,6 @@ void verificarBonus()
 				bonus_bombas[i] = bonus_bombas[qtdBonusBomba-1];
 				qtdBonusBomba--;
 			} 
-		}
-	}
-}
-
-void bombaColocouMapa2(int x, int y)
-{
-	strcpy(tab2[x][y].str2, bomb);
-	int i, j;
-	for(i = 0; i<range; i++)
-	{
-		for(j = 1; j<5; j++)
-		{
-			if(check(x+(dx[j]*i), y+(dy[j]*i))){
-				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str1, "FF");
-				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "FF");
-			}
 		}
 	}
 }
