@@ -45,6 +45,10 @@ int range_enemy = 2;
 
 char enemyBomb[3];
 
+pos matinhos[100];
+int qtdMatinhos = 0;
+int rodada = 1;
+
 pos bonus_range[100];
 int qtdBonusRange = 0;
 pos bonus_bombas[100];
@@ -93,6 +97,7 @@ void leitura()
 }
 
 // verifica se o mapa secundario eh igual ao mapa principal
+/*
 void verificacaoMapaSecundario()
 {
 	int i, j, k;
@@ -119,6 +124,7 @@ void verificacaoMapaSecundario()
 		}
 	}
 }
+*/
 
 
 //funcao retorna a posicao corrente de determinado jogador, cuja string (P1 ou P2) e passada como parametro.
@@ -711,12 +717,15 @@ void verificarBonus()
 	// Bonus Range
 	for(i = 0; i < qtdBonusRange; i++)
 	{
+		//se o bonus nao estiver mais la
 		if(strcmp(tab[bonus_range[i].i][bonus_range[i].j].str2, "+F") != 0) 
 		{
+			//caso seja o ultimo bonus do array
 			if(i == qtdBonusRange-1) qtdBonusRange--;
+			//caso NAO seja o ultimo bonus do array
 			else 
 			{
-				bonus_range[i] == bonus_range[qtdBonusRange-1];
+				bonus_range[i] = bonus_range[qtdBonusRange-1];
 				qtdBonusRange--;
 			} 
 		}
@@ -724,14 +733,117 @@ void verificarBonus()
 	// Bonus Bomba
 	for(i = 0; i < qtdBonusBomba; i++)
 	{
+		//se o bonus nao estiver mais la
 		if(strcmp(tab[bonus_bombas[i].i][bonus_bombas[i].j].str2, "+F") != 0) 
 		{
+			//caso seja o ultimo bonus do array
 			if(i == qtdBonusBomba-1) qtdBonusBomba--;
+			//caso NAO seja o ultimo bonus do array
 			else 
 			{
-				bonus_bombas[i] == bonus_bombas[qtdBonusBomba-1];
+				bonus_bombas[i] = bonus_bombas[qtdBonusBomba-1];
 				qtdBonusBomba--;
 			} 
+		}
+	}
+}
+
+//eu vou pegar todas as posições dos matinhos no comeco do jogo e vou guardar num arquivo
+//ai só ficar vendo se algum matinho desse array foi quebrado e verificar se no lugar dele tem um bonus
+//acho que tem um custo melhor do que ficar percorrendo o mapa o tempo inteiro
+void posMatinhos(){
+	int i, j;
+	if(rodada == 1){
+		for(i = 0; i < 11; i++){
+			for(j = 0; j < 13; j++){
+				if(strcmp(tab[i][j].str2,"MM") == 0){
+					matinhos[qtdMatinhos].i = i;
+					matinhos[qtdMatinhos].j = j;
+					qtdMatinhos++;
+				}
+			}
+		}
+	}
+}
+
+void lerMatinhos(){
+	int i;
+	fp = fopen("matinhos.txt","r+");
+	if(fp != NULL){
+		fscanf(fp,"%d %d ",&rodada,&qtdMatinhos);
+		for(i = 0; i < qtdMatinhos; i++){
+			fscanf(fp," %d %d", &matinhos[i].i, &matinhos[i].j);
+		}
+		fclose(fp);
+	}
+}
+
+void escreverMatinhos(){
+	int i;
+	fp = fopen("matinhos.txt","w+");
+	fprintf(fp,"%d %d \n",rodada,qtdMatinhos);
+	for(i = 0; i < qtdMatinhos; i++){
+		fprintf(fp, "%d %d ", matinhos[i].i, matinhos[i].j);
+	}
+	fclose(fp);
+
+}
+
+void lerBonus(){
+	int i;
+	fp = fopen("bonus.txt","r+");
+	if(fp != NULL){
+		fscanf(fp,"%d ",&qtdBonusRange);
+		for(i = 0; i < qtdBonusRange; i++){
+			fscanf(fp," %d %d", &bonus_range[i].i, &bonus_range[i].j);
+		}
+		fscanf(fp," %d",&qtdBonusBomba);
+		for(i = 0; i < qtdBonusBomba; i++){
+			fscanf(fp," %d %d", &bonus_bombas[i].i, &bonus_bombas[i].j);
+		}
+		fclose(fp);
+	}
+
+
+}
+
+void escreverBonus(){
+	int i;
+	fp = fopen("bonus.txt","w+");
+	fprintf(fp,"%d \n",qtdBonusRange);
+	for(i = 0; i < qtdBonusRange; i++){
+		fprintf(fp, "%d %d ", bonus_range[i].i, bonus_range[i].j);
+	}
+	fprintf(fp,"\n%d \n",qtdBonusBomba);
+	for(i = 0; i < qtdBonusBomba; i++){
+		fprintf(fp, "%d %d ", bonus_bombas[i].i, bonus_bombas[i].j);
+	}
+	fclose(fp);
+
+}
+
+void adicionar_bonus(){
+	int i;
+	for(i = 0; i < qtdMatinhos; i++){
+		//verificar se tem um bonus de range na posicao checada
+		if(strcmp(tab[matinhos[i].i][matinhos[i].j].str2,"+F") == 0){
+			bonus_range[qtdBonusRange].i = matinhos[i].i;
+			bonus_range[qtdBonusRange].j = matinhos[i].j;
+			if(i < qtdMatinhos-1){
+				matinhos[i] = matinhos[qtdMatinhos-1];
+			}
+			qtdBonusRange++;
+			qtdMatinhos--;
+		}
+		//verifica se tem um bonus de bomba na posicao checada
+		if(strcmp(tab[matinhos[i].i][matinhos[i].j].str2,"+B") == 0){
+			bonus_bombas[qtdBonusBomba].i = matinhos[i].i;
+			bonus_bombas[qtdBonusBomba].j = matinhos[i].j;
+			if(i < qtdMatinhos-1){
+				matinhos[i] = matinhos[qtdMatinhos-1];
+			}
+			qtdBonusBomba++;
+			qtdMatinhos--;
 		}
 	}
 }
@@ -777,6 +889,11 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	posIam = cur_pos(s);
 	cur = cur_pos(s); // o parametro a ser passado depende se o jogador atual e 1 o 2
 	lerBombas(); //Antes de inicializar qualquer decisao
+	lerBonus();
+	lerMatinhos();
+
+	posMatinhos();
+	adicionar_bonus();
 
 	jogarbomba = soltarbomba(cur.i,cur.j,enemyPos.i,enemyPos.j);
 	if(jogarbomba){
@@ -815,9 +932,12 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	where = MAIOR(move);
 	escreverPosicao(cur.i,cur.j);
 	explodirbomba = goexplodirbomba(cur.i,cur.j,where,enemyPos.i,enemyPos.j);
-	escreverBombas(); //Apos finalizar as decisoes
-
 	
+	rodada++;
+
+	escreverBombas(); //Apos finalizar as decisoes
+	escreverBonus();
+	escreverMatinhos();
 	escreverValores();
 	//impressao da saida
 	printf("%d %d %d %d \n",ident,jogarbomba, where,explodirbomba);
