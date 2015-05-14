@@ -100,9 +100,9 @@ void leitura()
 }
 
 // verifica se o mapa secundario eh igual ao mapa principal
-void verificacaoMapaSec()
+void verificarMapa2()
 {
-	int i, j, k;
+	int i, j;
 	for(i = 0; i<11; i++)
 	{
 		for(j = 0; j<13; j++)
@@ -110,14 +110,13 @@ void verificacaoMapaSec()
 			if(strcmp(tab2[i][j].str1, tab[i][j].str1) != 0)
 			{
 				//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
-				if(strcmp(tab2[i][j].str1, "FF")) continue;
-				tab2[i][j].str1[k] = tab[i][j].str1[k];
+				strcpy(tab2[i][j].str1, tab[i][j].str1);
 			}
 			if(strcmp(tab2[i][j].str2, tab[i][j].str2) != 0)
 			{
 				//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
-				if(strcmp(tab2[i][j].str2, "FF")) continue;
-				tab2[i][j].str2[k] = tab[i][j].str2[k];
+				if(strcmp(tab2[i][j].str2, "F1")) continue;
+				strcpy(tab2[i][j].str2, tab[i][j].str2);
 			}
 		}
 	}
@@ -172,14 +171,11 @@ void bombaColocouMapa2(int x, int y)
 {
 	strcpy(tab2[x][y].str2, bomb);
 	int i, j;
-	for(i = 0; i<range; i++)
+	for(j = 1; j<5; j++)
 	{
-		for(j = 1; j<5; j++)
+		for(i = 1; i<=range; i++)
 		{
-			if(check(x+(dx[j]*i), y+(dy[j]*i))){
-				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str1, "FF");
-				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "FF");
-			}
+			if(check(x+(dx[j]*i), y+(dy[j]*i)))	strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "F1");			
 		}
 	}
 }
@@ -824,6 +820,27 @@ void lerMapa2(){
 	}
 }
 
+void debug(){
+	fp = fopen("debug.txt","a+");
+	fprintf(fp, "rodou criarMapa2 rodada = %d\n", rodada);
+	fclose(fp);
+}
+
+void criarMapa2(){
+	int i, j;
+	if(rodada == 1){
+		debug();
+		for (i = 0; i < 11; i++)
+		{
+			for (j = 0; j < 13; j++)
+			{
+				strcpy(tab2[i][j].str1, tab[i][j].str1);
+				strcpy(tab2[i][j].str2, tab[i][j].str2);
+			}
+		}
+	}
+}
+
 void lerMatinhos(){
 	int i;
 	fp = fopen("matinhos.txt","r+");
@@ -941,6 +958,9 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
     	leitura();
     	lerMapa2();
+    	lerMatinhos();
+    	
+    	criarMapa2();
 
     	char s[3];
     	char enemyS[3];
@@ -968,7 +988,6 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	cur = cur_pos(s); // o parametro a ser passado depende se o jogador atual e 1 o 2
 	lerBombas(); //Antes de inicializar qualquer decisao
 	lerBonus();
-	lerMatinhos();
 
 	posMatinhos();
 	adicionar_bonus();
