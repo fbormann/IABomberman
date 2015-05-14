@@ -14,6 +14,8 @@ int modificacao;
 
 int move[5];
 
+int plantedBomb = 0; //If it planted a bomb it looks into running a away from it.
+
 	//esta estrutura guarda as posicoes em i e j num tabuleiro
 typedef struct pos
 {
@@ -147,7 +149,7 @@ pos cur_pos(char* player)
 Returns the distance between two objects;
 */
 double distance(int x1,int x2,int y1,int y2){
-	double dist = sqrt((x1-x2)^2 + (y1- y2)^2);
+	double dist = sqrt((y2-y1)^2 + (x2-x1)^2);
 	return dist;
 }
 
@@ -165,6 +167,37 @@ int checkPos(int x, int y){
 		return 1;
 	}else
 		return 0;
+}
+
+
+void manhattanDistance(int playerX,int enemyX,int playerY, int enemyY){
+
+	distanceX = abs(playerX - enemyX);
+	distanceY = abs(playerY - enemyY);
+	return distanceX+distanceY;
+}
+
+
+//Caso seja uma posicao 100% segura (ou seja, na diagonal) da minha bomba inicial, então é uma boa posição para ir.
+int checkSafety(int x, int y){
+
+	if(qtd_bombas > 0){
+		if(x-1 != bombas[0].i && y != bombas[0].j){
+			move[1] += 2;
+		}
+
+		if(x != bombas[0].i && y-1 != bombas[0].j){
+			move[2] += 2;
+		}
+
+		if(x+1 != bombas[0].i && y != bombas[0].j){
+			move[3] += 2;
+		}
+
+		if(x != bombas[0].i && y+1 != bombas[0].j){
+			move[4] += 2;
+		}
+	}
 }
 
 void bombaColocouMapa2(int x, int y)
@@ -279,6 +312,9 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 	}
 	return 0;
 }
+
+
+
 
 
 	//funcao: determina se caso voce exploda a ultima bomba, voce continue vivo ou qual lugar possui a maior distancia em relacao a bomba;
@@ -527,7 +563,7 @@ void checkWays(int playerX,int playerY){
 			move[4] -= 1;
 		}
 
-	}
+}
 	/*
 	Funcao feita para que ele nao pense em retornar a uma posicao antiga(desnecessario)
 	*/
@@ -574,17 +610,30 @@ void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 				if(playerX > enemyX){
 					move[1] += 1; //It holds more weight
 				}
+
+				if(manhattanDistance(playerX -1, enemyX,playerY,enemyY)){
+					move[1] += 1;
+				}
 		}
 
 		if(check(playerX,playerY-1)){ //esquerda
 				if(playerY > enemyY ){
 					move[2] += 1; //It holds  more weight
 				}
+
+				if(manhattanDistance(playerX, enemyX,playerY-1,enemyY)){
+					move[2] += 1;
+				}
+
 		}
 
 
 		if(check(playerX+1,playerY)){ //desce
 				if(playerX < enemyX ){ // This bombas[0].i /or j != playerX or Y is because it's starting a loop
+					move[3] += 1;
+				}
+
+				if(manhattanDistance(playerX +1, enemyX,playerY,enemyY)){ 
 					move[3] += 1;
 				}
 		}
@@ -593,8 +642,18 @@ void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 				if(playerY < enemyY  && bombas[0].j != playerY){
 					move[4] += 1;
 				}
+
+				if(manhattanDistance(playerX, enemyX,playerY+1,enemyY)){
+					move[4] += 1;
+				}
 		}
 	}
+}
+
+void findPath(int x, int y, int goalx,int goaly){
+
+
+
 }
 
 //It returns if in that direction there is a path with the minimum size required.
@@ -1017,6 +1076,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 			}
 		}
 	}
+	checkSafety(posIam.i,posIam.j);
 	//ver as bombas do inimigo
 	verificar_bombas();
 	bombas_inimigo(enemyPos.i,enemyPos.j);
