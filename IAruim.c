@@ -170,32 +170,32 @@ int checkPos(int x, int y){
 }
 
 
-void manhattanDistance(int playerX,int enemyX,int playerY, int enemyY){
+int manhattanDistance(int playerX,int enemyX,int playerY, int enemyY){
 
-	distanceX = abs(playerX - enemyX);
-	distanceY = abs(playerY - enemyY);
+	int distanceX = abs(playerX - enemyX);
+	int distanceY = abs(playerY - enemyY);
 	return distanceX+distanceY;
 }
 
 
 //Caso seja uma posicao 100% segura (ou seja, na diagonal) da minha bomba inicial, então é uma boa posição para ir.
-int checkSafety(int x, int y){
+void checkSafety(int x, int y){
 
 	if(qtd_bombas > 0){
 		if(x-1 != bombas[0].i && y != bombas[0].j){
-			move[1] += 2;
+			move[1] += 3;
 		}
 
 		if(x != bombas[0].i && y-1 != bombas[0].j){
-			move[2] += 2;
+			move[2] += 3;
 		}
 
 		if(x+1 != bombas[0].i && y != bombas[0].j){
-			move[3] += 2;
+			move[3] += 3;
 		}
 
 		if(x != bombas[0].i && y+1 != bombas[0].j){
-			move[4] += 2;
+			move[4] += 3;
 		}
 	}
 }
@@ -469,7 +469,7 @@ int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
 				retorno =  1;
 			}
 
-			if(bombas[0].i == y && distance(bombas[0].i,x-1,bombas[0].j,y) > 3){
+			if(bombas[0].i == y && distance(bombas[0].i,x-1,bombas[0].j,y) > bombas[0].range){
 				qtd_bombas--;
 				modifybombs();
 				retorno =  1;
@@ -485,7 +485,7 @@ int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
 				retorno =  1;
 			}
 
-			if(bombas[0].i == x && distance(bombas[0].i,x,bombas[0].j,y-1) > 3){
+			if(bombas[0].i == x && distance(bombas[0].i,x,bombas[0].j,y-1) > bombas[0].range){
 				qtd_bombas--;
 				modifybombs();
 				retorno =  1;
@@ -500,7 +500,7 @@ int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
 				retorno =  1;
 			}
 
-			if(bombas[0].j == y && distance(bombas[0].i,x+1,bombas[0].j,y) > 3){
+			if(bombas[0].j == y && distance(bombas[0].i,x+1,bombas[0].j,y) > bombas[0].range){
 				qtd_bombas--;
 				modifybombs();
 				retorno =  1;
@@ -513,7 +513,7 @@ int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
 				retorno =  1;
 			}
 
-			if(bombas[0].i == x && distance(bombas[0].i,x-1,bombas[0].j,y+1) > 3){
+			if(bombas[0].i == x && distance(bombas[0].i,x-1,bombas[0].j,y+1) > bombas[0].range){
 				qtd_bombas--;
 				modifybombs();
 				retorno =  1;
@@ -605,13 +605,13 @@ int MAIOR(int *vec)
 */
 void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 
-	if(qtd_bombas == 0 && jogarbomba == 0){
+	
 		if(check(playerX-1,playerY)){ //sobe
 				if(playerX > enemyX){
 					move[1] += 1; //It holds more weight
 				}
 
-				if(manhattanDistance(playerX -1, enemyX,playerY,enemyY)){
+				if(manhattanDistance(playerX -1, enemyX,playerY,enemyY) < manhattanDistance(playerX,enemyX,playerY,enemyY)){
 					move[1] += 1;
 				}
 		}
@@ -621,7 +621,7 @@ void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 					move[2] += 1; //It holds  more weight
 				}
 
-				if(manhattanDistance(playerX, enemyX,playerY-1,enemyY)){
+				if(manhattanDistance(playerX, enemyX,playerY-1,enemyY)  < manhattanDistance(playerX,enemyX,playerY,enemyY)){
 					move[2] += 1;
 				}
 
@@ -633,7 +633,7 @@ void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 					move[3] += 1;
 				}
 
-				if(manhattanDistance(playerX +1, enemyX,playerY,enemyY)){ 
+				if(manhattanDistance(playerX +1, enemyX,playerY,enemyY)  < manhattanDistance(playerX,enemyX,playerY,enemyY)){ 
 					move[3] += 1;
 				}
 		}
@@ -643,17 +643,11 @@ void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 					move[4] += 1;
 				}
 
-				if(manhattanDistance(playerX, enemyX,playerY+1,enemyY)){
+				if(manhattanDistance(playerX, enemyX,playerY+1,enemyY)  < manhattanDistance(playerX,enemyX,playerY,enemyY)){
 					move[4] += 1;
 				}
 		}
-	}
-}
-
-void findPath(int x, int y, int goalx,int goaly){
-
-
-
+	
 }
 
 //It returns if in that direction there is a path with the minimum size required.
@@ -881,14 +875,18 @@ void lerMapa2(){
 
 void debug(){
 	fp = fopen("debug.txt","a+");
-	fprintf(fp, "rodou criarMapa2 rodada = %d\n", rodada);
+	int i = 0;
+	for(; i < 5;i++){
+		fprintf(fp, "move[%d] = %d", i,move[i]);
+	}
+	fprintf(fp,"\n");
 	fclose(fp);
 }
 
 void criarMapa2(){
 	int i, j;
 	if(rodada == 1){
-		debug();
+		
 		for (i = 0; i < 11; i++)
 		{
 			for (j = 0; j < 13; j++)
@@ -1076,7 +1074,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 			}
 		}
 	}
-	checkSafety(posIam.i,posIam.j);
+	checkSafety(cur.i,cur.j);
 	//ver as bombas do inimigo
 	verificar_bombas();
 	bombas_inimigo(enemyPos.i,enemyPos.j);
@@ -1100,6 +1098,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
 	escreverValores();
 	escreverMapa2();
+	debug();
 	//impressao da saida
 	printf("%d %d %d %d \n",ident,jogarbomba, where,explodirbomba);
 
