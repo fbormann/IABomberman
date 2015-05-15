@@ -111,8 +111,10 @@ void verificarMapa2()
 		{
 			if(strcmp(tab2[i][j].str1, tab[i][j].str1) != 0)
 			{
-				//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
 				strcpy(tab2[i][j].str1, tab[i][j].str1);
+			}else if(strcmp(tab2[i][j].str2, "F1") == 0)
+			{
+				strcpy(tab2[i][j].str1, "--");
 			}
 			if(strcmp(tab2[i][j].str2, tab[i][j].str2) != 0)
 			{
@@ -203,16 +205,19 @@ void checkSafety(int x, int y){
 void bombaColocouMapa2(int x, int y)
 {
 	strcpy(tab2[x][y].str2, bomb);
-	int i, j;
+	int i, j, matoAntes;
 	for(j = 1; j<5; j++)
 	{
+		matoAntes = 0;
 		for(i = 1; i<=range; i++)
 		{
-			if(check(x+(dx[j]*i), y+(dy[j]*i)))	strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "F1");			
+			if(checkPos(x+(dx[j]*i), y+(dy[j]*i)) && strcmp(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "MM") == 0) 
+				matoAntes = 1;
+			if(check(x+(dx[j]*i), y+(dy[j]*i)) && !matoAntes)	
+				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "F1");			
 		}
 	}
 }
-
 
 	//funcao se determina se devo soltar uma bomba ou nao
 int soltarbomba(int x, int y,int enemyX,int enemyY){
@@ -455,6 +460,27 @@ void modifybombs(){
 	}
 }
 
+// metodo para retirar B# e FF da bomba que explodiu
+void bombaExplodiuMapa2()
+{
+	int i = bombas[0].i;
+	int j = bombas[0].j;
+	int range = bombas[0].range;
+	strcpy(tab2[i][j].str2, "--");
+	int k, l;
+	for(k = 1; k<=range; k++)
+	{
+		for(l = 1; l<5; l++)
+		{
+			if(check(i+(dx[l]*k), j+(dy[l]*k)))
+			{
+				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str1, "--");
+				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str2, "--");
+			}
+		}
+	}
+}
+
 	//funcao se determina se devo explodir uma bomba ou nao
 int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
 	int retorno = 0;
@@ -465,14 +491,18 @@ int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
 			case 1:
 			if(bombas[0].i != x-1 && bombas[0].j != y ){
 				qtd_bombas--;
+				bombaExplodiuMapa2();
 				modifybombs();
 				retorno =  1;
+				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
 			}
 
 			if(bombas[0].i == y && distance(bombas[0].i,x-1,bombas[0].j,y) > bombas[0].range){
 				qtd_bombas--;
+				bombaExplodiuMapa2();
 				modifybombs();
 				retorno =  1;
+				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);	
 			}
 
 
@@ -481,14 +511,18 @@ int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
 
 			if(bombas[0].i != x && bombas[0].j != y-1){
 				qtd_bombas--;
+				bombaExplodiuMapa2();
 				modifybombs();
 				retorno =  1;
+				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
 			}
 
 			if(bombas[0].i == x && distance(bombas[0].i,x,bombas[0].j,y-1) > bombas[0].range){
 				qtd_bombas--;
+				bombaExplodiuMapa2();
 				modifybombs();
 				retorno =  1;
+				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
 			}
 
 
@@ -496,27 +530,35 @@ int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
 			case 3:
 			if(bombas[0].i != x+1 && bombas[0].j != y){
 				qtd_bombas--;
+				bombaExplodiuMapa2();
 				modifybombs();
 				retorno =  1;
+				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
 			}
 
 			if(bombas[0].j == y && distance(bombas[0].i,x+1,bombas[0].j,y) > bombas[0].range){
 				qtd_bombas--;
+				bombaExplodiuMapa2();
 				modifybombs();
 				retorno =  1;
+				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
 			}
 			break;
 			case 4:
 			if(bombas[0].i != x && bombas[0].j != y+1){
 				qtd_bombas--;
+				bombaExplodiuMapa2();
 				modifybombs();
 				retorno =  1;
+				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
 			}
 
 			if(bombas[0].i == x && distance(bombas[0].i,x-1,bombas[0].j,y+1) > bombas[0].range){
 				qtd_bombas--;
+				bombaExplodiuMapa2();
 				modifybombs();
 				retorno =  1;
+				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
 			}
 
 			break;
@@ -813,27 +855,6 @@ void verificarBonus()
 				bonus_bombas[i] = bonus_bombas[qtdBonusBomba-1];
 				qtdBonusBomba--;
 			} 
-		}
-	}
-}
-
-// metodo para retirar B# e FF da bomba que explodiu
-void bombaExplodiuMapa2()
-{
-	int i = bombas[0].i;
-	int j = bombas[0].j;
-	int range = bombas[0].range;
-	strcpy(tab2[i][j].str2, "--");
-	int k, l;
-	for(k = 1; k<=range; k++)
-	{
-		for(l = 1; l<5; l++)
-		{
-			if(check(i+(dx[l]*k), j+(dy[l]*k)))
-			{
-				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str1, "--");
-				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str2, "--");
-			}
 		}
 	}
 }
