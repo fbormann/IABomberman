@@ -1035,10 +1035,17 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
     	srand(time(NULL));
 
     	leitura();
-    	lerMapa2();
     	lerMatinhos();
     	
-    	criarMapa2();
+
+    	if(rodada != 1){
+    		lerMapa2();
+    	}else{
+    		criarMapa2();
+    	}
+    	
+    	verificarMapa2();
+    	
 
     	char s[3];
     	char enemyS[3];
