@@ -34,7 +34,7 @@ pos posIam;
 pos oldPos; //a Posicao anterior do usuario
 
 int jogarbomba; //Verifica se vai jogar bomba nesta posicao ou nao;
-int explodirbomba; //Indica se ira jogar bomba nesta posicao ou nao;
+int willexplode; //Indica se ira jogar bomba nesta posicao ou nao;
 
 //no maximmo pode ter 5 bombas(TMB)
 info_bomba bombas[5];// guarda as posicoes da bomba;
@@ -491,92 +491,125 @@ void bombaExplodiuMapa2()
 	}
 }
 
-	//funcao se determina se devo explodir uma bomba ou nao
-int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
+
+//x is the player position in the x-axis
+//y is the player position in the y-axis
+int explodirbomba(int x,int y,int where){
+	int i = 0;
+	int j = 0;//size of the map
 	int retorno = 0;
-	if(qtd_bombas > 0){
-
-
-			switch(where){ //Because what it matters is my next move, not the position I'm at.
-			case 1:
-			if(bombas[0].i != x-1 && bombas[0].j != y ){
-				qtd_bombas--;
-				bombaExplodiuMapa2();
-				modifybombs();
-				retorno =  1;
-				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
+	switch(where){
+		case 1:
+			if(strcmp(tab2[x-1][y].str2,"F1") != 0 &&  strcmp(tab2[x-1][y].str2,"B1") != 0){
+				retorno = 1;
+			}
+		break;
+		case 2:
+			if(strcmp(tab2[x][y-1].str2,"F1") != 0 &&  strcmp(tab2[x][y-1].str2,"B1") != 0){
+				retorno = 1;
 			}
 
-			if(bombas[0].i == y && distance(bombas[0].i,x-1,bombas[0].j,y) > bombas[0].range){
-				qtd_bombas--;
-				bombaExplodiuMapa2();
-				modifybombs();
-				retorno =  1;
-				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);	
+		break;
+		case 3:
+			if(strcmp(tab2[x+1][y].str2,"F1") != 0 &&  strcmp(tab2[x+1][y].str2,"B1") != 0){
+				retorno = 1;
 			}
-
-
-			break;
-			case 2:
-
-			if(bombas[0].i != x && bombas[0].j != y-1){
-				qtd_bombas--;
-				bombaExplodiuMapa2();
-				modifybombs();
-				retorno =  1;
-				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
+		break;
+		case 4:
+			if(strcmp(tab2[x][y+1].str2,"F1") != 0 &&  strcmp(tab2[x][y+1].str2,"B1") != 0){
+				retorno = 1;
 			}
-
-			if(bombas[0].i == x && distance(bombas[0].i,x,bombas[0].j,y-1) > bombas[0].range){
-				qtd_bombas--;
-				bombaExplodiuMapa2();
-				modifybombs();
-				retorno =  1;
-				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-			}
-
-
-			break;
-			case 3:
-			if(bombas[0].i != x+1 && bombas[0].j != y){
-				qtd_bombas--;
-				bombaExplodiuMapa2();
-				modifybombs();
-				retorno =  1;
-				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-			}
-
-			if(bombas[0].j == y && distance(bombas[0].i,x+1,bombas[0].j,y) > bombas[0].range){
-				qtd_bombas--;
-				bombaExplodiuMapa2();
-				modifybombs();
-				retorno =  1;
-				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-			}
-			break;
-			case 4:
-			if(bombas[0].i != x && bombas[0].j != y+1){
-				qtd_bombas--;
-				bombaExplodiuMapa2();
-				modifybombs();
-				retorno =  1;
-				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-			}
-
-			if(bombas[0].i == x && distance(bombas[0].i,x-1,bombas[0].j,y+1) > bombas[0].range){
-				qtd_bombas--;
-				bombaExplodiuMapa2();
-				modifybombs();
-				retorno =  1;
-				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-			}
-
-			break;
-		}
+		break;
 	}
 	return retorno;
-		//Checar se o usuario esta distante da ultima bomba ou nao;
 }
+
+	//funcao se determina se devo explodir uma bomba ou nao
+// int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
+// 	int retorno = 0;
+// 	if(qtd_bombas > 0){
+
+
+// 			switch(where){ //Because what it matters is my next move, not the position I'm at.
+// 			case 1:
+// 			if(bombas[0].i != x-1 && bombas[0].j != y ){
+// 				qtd_bombas--;
+// 				bombaExplodiuMapa2();
+// 				modifybombs();
+// 				retorno =  1;
+// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
+// 			}
+
+// 			if(bombas[0].i == y && distance(bombas[0].i,x-1,bombas[0].j,y) > bombas[0].range){
+// 				qtd_bombas--;
+// 				bombaExplodiuMapa2();
+// 				modifybombs();
+// 				retorno =  1;
+// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);	
+// 			}
+
+
+// 			break;
+// 			case 2:
+
+// 			if(bombas[0].i != x && bombas[0].j != y-1){
+// 				qtd_bombas--;
+// 				bombaExplodiuMapa2();
+// 				modifybombs();
+// 				retorno =  1;
+// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
+// 			}
+
+// 			if(bombas[0].i == x && distance(bombas[0].i,x,bombas[0].j,y-1) > bombas[0].range){
+// 				qtd_bombas--;
+// 				bombaExplodiuMapa2();
+// 				modifybombs();
+// 				retorno =  1;
+// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
+// 			}
+
+
+// 			break;
+// 			case 3:
+// 			if(bombas[0].i != x+1 && bombas[0].j != y){
+// 				qtd_bombas--;
+// 				bombaExplodiuMapa2();
+// 				modifybombs();
+// 				retorno =  1;
+// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
+// 			}
+
+// 			if(bombas[0].j == y && distance(bombas[0].i,x+1,bombas[0].j,y) > bombas[0].range){
+// 				qtd_bombas--;
+// 				bombaExplodiuMapa2();
+// 				modifybombs();
+// 				retorno =  1;
+// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
+// 			}
+// 			break;
+// 			case 4:
+// 			if(bombas[0].i != x && bombas[0].j != y+1){
+// 				qtd_bombas--;
+// 				bombaExplodiuMapa2();
+// 				modifybombs();
+// 				retorno =  1;
+// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
+// 			}
+
+// 			if(bombas[0].i == x && distance(bombas[0].i,x-1,bombas[0].j,y+1) > bombas[0].range){
+// 				qtd_bombas--;
+// 				bombaExplodiuMapa2();
+// 				modifybombs();
+// 				retorno =  1;
+// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
+// 			}
+
+// 			break;
+// 		}
+// 	}
+// 	return retorno;
+// 		//Checar se o usuario esta distante da ultima bomba ou nao;
+// }
 
 void lerPosicao(){
 
@@ -1124,7 +1157,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	avoidOldPosition(cur.i,cur.j,jogarbomba); //Solucao Temporatoria 
 	where = MAIOR(move);
 	escreverPosicao(cur.i,cur.j);
-	explodirbomba = goexplodirbomba(cur.i,cur.j,where,enemyPos.i,enemyPos.j);
+	willexplode = explodirbomba(cur.i,cur.j,where);
 	
 	rodada++;
 
@@ -1138,7 +1171,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	escreverMapa2();
 	debug();
 	//impressao da saida
-	printf("%d %d %d %d \n",ident,jogarbomba, where,explodirbomba);
+	printf("%d %d %d %d \n",ident,jogarbomba, where,willexplode);
 
 
 	return 0;
