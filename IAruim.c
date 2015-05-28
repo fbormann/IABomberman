@@ -14,6 +14,8 @@ int modificacao;
 
 int move[5];
 
+char range_symbol[3];
+
 int plantedBomb = 0; //If it planted a bomb it looks into running a away from it.
 
 	//esta estrutura guarda as posicoes em i e j num tabuleiro
@@ -117,11 +119,11 @@ void verificarMapa2()
 				//tab  - MMMM
 				//tab2 - --F1
 				//(pq a gente quer representar que o matinho explodiu)
-				if(strcmp(tab2[i][j].str2, "F1") != 0){
+				if(strcmp(tab2[i][j].str2, range_symbol) != 0){
 					strcpy(tab2[i][j].str1, tab[i][j].str1);
 				}
 			//explodir o matinho
-			}else if(strcmp(tab2[i][j].str2, "F1") == 0)
+			}else if(strcmp(tab2[i][j].str2, range_symbol) == 0)
 			{
 				strcpy(tab2[i][j].str1, "--");
 			}
@@ -129,7 +131,7 @@ void verificarMapa2()
 			if(strcmp(tab2[i][j].str2, tab[i][j].str2) != 0)
 			{
 				//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
-				if(strcmp(tab2[i][j].str2, "F1") == 0) continue;
+				if(strcmp(tab2[i][j].str2, range_symbol) == 0) continue;
 				strcpy(tab2[i][j].str2, tab[i][j].str2);
 			}
 		}
@@ -224,7 +226,7 @@ void bombaColocouMapa2(int x, int y)
 			if(checkPos(x+(dx[j]*i), y+(dy[j]*i)) && strcmp(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "MM") == 0) 
 				matoAntes = 1;
 			if(check(x+(dx[j]*i), y+(dy[j]*i)) && !matoAntes)	
-				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "F1");			
+				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, range_symbol);			
 		}
 	}
 }
@@ -499,25 +501,37 @@ int explodirbomba(int x,int y,int where){
 	int j = 0;//size of the map
 	int retorno = 0;
 	switch(where){
-		case 1:
-			if(strcmp(tab2[x-1][y].str2,"F1") != 0 &&  strcmp(tab2[x-1][y].str2,"B1") != 0){
+		case 0:
+			if(strcmp(tab2[x][y].str2,range_symbol) != 0 &&  strcmp(tab2[x][y].str2,bomb) != 0){
 				retorno = 1;
+			}
+		break;
+		case 1:
+			if(checkPos(x-1,y)){
+				if(strcmp(tab2[x-1][y].str2,range_symbol) != 0 &&  strcmp(tab2[x-1][y].str2,bomb) != 0){
+					retorno = 1;
+				}
 			}
 		break;
 		case 2:
-			if(strcmp(tab2[x][y-1].str2,"F1") != 0 &&  strcmp(tab2[x][y-1].str2,"B1") != 0){
-				retorno = 1;
+			if(checkPos(x,y-1)){
+				if(strcmp(tab2[x][y-1].str2,range_symbol) != 0 &&  strcmp(tab2[x][y-1].str2,bomb) != 0){
+					retorno = 1;
+				}
 			}
-
 		break;
 		case 3:
-			if(strcmp(tab2[x+1][y].str2,"F1") != 0 &&  strcmp(tab2[x+1][y].str2,"B1") != 0){
-				retorno = 1;
+			if(checkPos(x+1,y)){
+				if(strcmp(tab2[x+1][y].str2,range_symbol) != 0 &&  strcmp(tab2[x+1][y].str2,bomb) != 0){
+					retorno = 1;
+				}
 			}
 		break;
 		case 4:
-			if(strcmp(tab2[x][y+1].str2,"F1") != 0 &&  strcmp(tab2[x][y+1].str2,"B1") != 0){
-				retorno = 1;
+			if(checkPos(x,y+1)){
+				if(strcmp(tab2[x][y+1].str2,range_symbol) != 0 &&  strcmp(tab2[x][y+1].str2,bomb) != 0){
+					retorno = 1;
+				}
 			}
 		break;
 	}
@@ -860,13 +874,17 @@ void lerMapa2(){
 	}
 }
 
-void debug(){
+void debug(int x, int y){
 	fp = fopen("debug.txt","a+");
-	int i = 0;
-	for(; i < 5;i++){
-		fprintf(fp, "move[%d] = %d", i,move[i]);
-	}
-	fprintf(fp,"\n");
+
+	// int i = 0;
+	// for(; i < 5;i++){
+	// 	fprintf(fp, "move[%d] = %d", i,move[i]);
+	// }
+	// fprintf(fp,"\n");
+
+	fprintf(fp,"x: %d , y : %d , tab[x,y] = %s",x,y,tab2[x][y].str2);
+	fprintf(fp,"\n");	
 	fclose(fp);
 }
 
@@ -940,8 +958,6 @@ void lerBonus(){
 		}
 		fclose(fp);
 	}
-
-
 }
 
 void escreverBonus(){
@@ -993,48 +1009,49 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	
 
 	//convercao dos identificadores
-    	id = atoi(argv[1]);	//identificador do Jogador
-    	ident = atoi(argv[2]); //identificador da partida
+    id = atoi(argv[1]);	//identificador do Jogador
+    ident = atoi(argv[2]); //identificador da partida
 
-    	pos cur;
-    	pos enemyPos;
-    	srand(time(NULL));
+    pos cur;
+    pos enemyPos;
+    srand(time(NULL));
 
-    	leitura();
-    	lerMatinhos();
+    leitura();
+    lerMatinhos();
     	
 
-    	if(rodada != 1){
-    		lerMapa2();
-    	}else{
-    		criarMapa2();
-    	}
+    if(rodada != 1){
+    	lerMapa2();
+    }else{
+    	criarMapa2();
+    }
     	
-    	verificarMapa2();
+    verificarMapa2();
     	
 
-    	char s[3];
-    	char enemyS[3];
-    	if(id==1){
-    		strcpy(s,"P1");
-    		strcpy(enemyS,"P2");
-    	}
-    	else{
-    		strcpy(enemyS,"P1");
-    		strcpy(s,"P2");
+    char s[3];
+    char enemyS[3];
+    if(id==1){
+    	strcpy(s,"P1");
+    	strcpy(enemyS,"P2");
+    	strcpy(range_symbol,"F1");
+    }
+    else{
+    	strcpy(enemyS,"P1");
+    	strcpy(s,"P2");
+    	strcpy(range_symbol,"F2");
+    }
+    //pra saber qual a bomba do cara
+    if(strcmp(enemyS,"P1") == 0){
+    	strcpy(enemyBomb,"B1");
+    	strcpy(bomb, "B2");
+    }else{
+    	strcpy(bomb, "B1");
+    	strcpy(enemyBomb,"B2");
+    }
 
-    	}
-    	//pra saber qual a bomba do cara
-    	if(strcmp(enemyS,"P1") == 0){
-    		strcpy(enemyBomb,"B1");
-    		strcpy(bomb, "B2");
-    	}else{
-    		strcpy(bomb, "B1");
-    		strcpy(enemyBomb,"B2");
-    	}
-
-    	enemyPos = cur_pos(enemyS);
-    	lerPosicao();
+    enemyPos = cur_pos(enemyS);
+    lerPosicao();
 	posIam = cur_pos(s);
 	cur = cur_pos(s); // o parametro a ser passado depende se o jogador atual e 1 o 2
 	lerBombas(); //Antes de inicializar qualquer decisao
@@ -1092,7 +1109,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
 	escreverValores();
 	escreverMapa2();
-	debug();
+	debug(cur.i,cur.j);
 	//impressao da saida
 	printf("%d %d %d %d \n",ident,jogarbomba, where,willexplode);
 
