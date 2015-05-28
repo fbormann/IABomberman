@@ -522,8 +522,10 @@ int explodirbomba(int x,int y,int where){
 		break;
 	}
 	if(retorno == 1){
+		qtd_bombas--;
 		bombaExplodiuMapa2();
 		modifybombs();
+
 		if(qtd_bombas > 0) bombaExplodiuMapa2(bombas[0].i,bombas[0].j); //Caso a quantidade de bombas ainda seja maior do que 0, teremos de colocar os novos F's no mapa pois agora bomba[1] pasosu a ser bomba[0].
 
 	}
