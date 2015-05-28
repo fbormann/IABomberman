@@ -521,95 +521,18 @@ int explodirbomba(int x,int y,int where){
 			}
 		break;
 	}
+	if(retorno == 1){
+		qtd_bombas--;
+		bombaExplodiuMapa2();
+		modifybombs();
+
+		if(qtd_bombas > 0) bombaExplodiuMapa2(bombas[0].i,bombas[0].j); //Caso a quantidade de bombas ainda seja maior do que 0, teremos de colocar os novos F's no mapa pois agora bomba[1] pasosu a ser bomba[0].
+
+	}
 	return retorno;
 }
 
-	//funcao se determina se devo explodir uma bomba ou nao
-// int goexplodirbomba(int x, int y, int where,int enemyX,int enemyY){
-// 	int retorno = 0;
-// 	if(qtd_bombas > 0){
-
-
-// 			switch(where){ //Because what it matters is my next move, not the position I'm at.
-// 			case 1:
-// 			if(bombas[0].i != x-1 && bombas[0].j != y ){
-// 				qtd_bombas--;
-// 				bombaExplodiuMapa2();
-// 				modifybombs();
-// 				retorno =  1;
-// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-// 			}
-
-// 			if(bombas[0].i == y && distance(bombas[0].i,x-1,bombas[0].j,y) > bombas[0].range){
-// 				qtd_bombas--;
-// 				bombaExplodiuMapa2();
-// 				modifybombs();
-// 				retorno =  1;
-// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);	
-// 			}
-
-
-// 			break;
-// 			case 2:
-
-// 			if(bombas[0].i != x && bombas[0].j != y-1){
-// 				qtd_bombas--;
-// 				bombaExplodiuMapa2();
-// 				modifybombs();
-// 				retorno =  1;
-// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-// 			}
-
-// 			if(bombas[0].i == x && distance(bombas[0].i,x,bombas[0].j,y-1) > bombas[0].range){
-// 				qtd_bombas--;
-// 				bombaExplodiuMapa2();
-// 				modifybombs();
-// 				retorno =  1;
-// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-// 			}
-
-
-// 			break;
-// 			case 3:
-// 			if(bombas[0].i != x+1 && bombas[0].j != y){
-// 				qtd_bombas--;
-// 				bombaExplodiuMapa2();
-// 				modifybombs();
-// 				retorno =  1;
-// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-// 			}
-
-// 			if(bombas[0].j == y && distance(bombas[0].i,x+1,bombas[0].j,y) > bombas[0].range){
-// 				qtd_bombas--;
-// 				bombaExplodiuMapa2();
-// 				modifybombs();
-// 				retorno =  1;
-// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-// 			}
-// 			break;
-// 			case 4:
-// 			if(bombas[0].i != x && bombas[0].j != y+1){
-// 				qtd_bombas--;
-// 				bombaExplodiuMapa2();
-// 				modifybombs();
-// 				retorno =  1;
-// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-// 			}
-
-// 			if(bombas[0].i == x && distance(bombas[0].i,x-1,bombas[0].j,y+1) > bombas[0].range){
-// 				qtd_bombas--;
-// 				bombaExplodiuMapa2();
-// 				modifybombs();
-// 				retorno =  1;
-// 				if(qtd_bombas) bombaColocouMapa2(bombas[0].i, bombas[0].j);
-// 			}
-
-// 			break;
-// 		}
-// 	}
-// 	return retorno;
-// 		//Checar se o usuario esta distante da ultima bomba ou nao;
-// }
+	
 
 void lerPosicao(){
 
