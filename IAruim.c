@@ -109,17 +109,27 @@ void verificarMapa2()
 	{
 		for(j = 0; j<13; j++)
 		{
+			//verifica se a primeira string eh igual
 			if(strcmp(tab2[i][j].str1, tab[i][j].str1) != 0)
 			{
-				strcpy(tab2[i][j].str1, tab[i][j].str1);
+				//se for diferente verifica se a segunda string é diferente de F1
+				//CASO
+				//tab  - MMMM
+				//tab2 - --F1
+				//(pq a gente quer representar que o matinho explodiu)
+				if(strcmp(tab2[i][j].str2, "F1") != 0){
+					strcpy(tab2[i][j].str1, tab[i][j].str1);
+				}
+			//explodir o matinho
 			}else if(strcmp(tab2[i][j].str2, "F1") == 0)
 			{
 				strcpy(tab2[i][j].str1, "--");
 			}
+			//verificar a segunda string
 			if(strcmp(tab2[i][j].str2, tab[i][j].str2) != 0)
 			{
 				//verifica se no mapa secundario tem o char 'F' o qual é normal que exista
-				if(strcmp(tab2[i][j].str2, "F1")) continue;
+				if(strcmp(tab2[i][j].str2, "F1") == 0) continue;
 				strcpy(tab2[i][j].str2, tab[i][j].str2);
 			}
 		}
