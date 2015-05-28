@@ -478,9 +478,9 @@ void bombaExplodiuMapa2()
 	int range = bombas[0].range;
 	strcpy(tab2[i][j].str2, "--");
 	int k, l;
-	for(k = 1; k<=range; k++)
+	for(l = 1; l<5; l++)
 	{
-		for(l = 1; l<5; l++)
+		for(k = 1; k<=range; k++)
 		{
 			if(check(i+(dx[l]*k), j+(dy[l]*k)))
 			{
