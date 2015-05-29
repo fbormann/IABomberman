@@ -170,7 +170,7 @@ double distance(int x1,int x2,int y1,int y2){
 //funcao que checa se o movimento e valido em determinada posicao
 int check(int x, int y)
 {
-	if(x>=0 && x<11 && y>=0 && y<13 && (strcmp(tab[x][y].str2,"--")==0  || strcmp(tab[x][y].str2,"+F")==0 || strcmp(tab[x][y].str2,"+B")==0))
+	if(x>=0 && x<11 && y>=0 && y<13 && (strcmp(tab[x][y].str2,"--")==0  || strcmp(tab[x][y].str2,"+F")==0 || strcmp(tab[x][y].str2,"+B")==0) && strcmp(tab[x][y].str2,"MM") != 0 && strcmp(tab[x][y].str2,"XX") != 0)
 		return 1;
 	else
 		return 0;
@@ -497,51 +497,56 @@ void bombaExplodiuMapa2()
 //x is the player position in the x-axis
 //y is the player position in the y-axis
 int explodirbomba(int x,int y,int where){
-	int i = 0;
-	int j = 0;//size of the map
 	int retorno = 0;
-	switch(where){
-		case 0:
-			if(strcmp(tab2[x][y].str2,range_symbol) != 0 &&  strcmp(tab2[x][y].str2,bomb) != 0){
-				retorno = 1;
-			}
-		break;
-		case 1:
-			if(checkPos(x-1,y)){
-				if(strcmp(tab2[x-1][y].str2,range_symbol) != 0 &&  strcmp(tab2[x-1][y].str2,bomb) != 0){
-					retorno = 1;
+	if(qtd_bombas > 0){
+		int i = 0;
+		int j = 0;//size of the map
+		
+		switch(where){
+			case 0:
+				if(check(x,y)){ //Parece desnecessário , contudo, estou utilizando para fins de teste.
+					if(strcmp(tab2[x][y].str2,range_symbol) != 0 &&  strcmp(tab2[x][y].str2,bomb) != 0){
+						retorno = 1;
+					}
 				}
-			}
-		break;
-		case 2:
-			if(checkPos(x,y-1)){
-				if(strcmp(tab2[x][y-1].str2,range_symbol) != 0 &&  strcmp(tab2[x][y-1].str2,bomb) != 0){
-					retorno = 1;
+			break;
+			case 1:
+				if(check(x-1,y)){
+					if(strcmp(tab2[x-1][y].str2,range_symbol) != 0 &&  strcmp(tab2[x-1][y].str2,bomb) != 0){
+						retorno = 1;
+					}
 				}
-			}
-		break;
-		case 3:
-			if(checkPos(x+1,y)){
-				if(strcmp(tab2[x+1][y].str2,range_symbol) != 0 &&  strcmp(tab2[x+1][y].str2,bomb) != 0){
-					retorno = 1;
+			break;
+			case 2:
+				if(check(x,y-1)){
+					if(strcmp(tab2[x][y-1].str2,range_symbol) != 0 &&  strcmp(tab2[x][y-1].str2,bomb) != 0){
+						retorno = 1;
+					}
 				}
-			}
-		break;
-		case 4:
-			if(checkPos(x,y+1)){
-				if(strcmp(tab2[x][y+1].str2,range_symbol) != 0 &&  strcmp(tab2[x][y+1].str2,bomb) != 0){
-					retorno = 1;
+			break;
+			case 3:
+				if(check(x+1,y)){
+					if(strcmp(tab2[x+1][y].str2,range_symbol) != 0 &&  strcmp(tab2[x+1][y].str2,bomb) != 0){
+						retorno = 1;
+					}
 				}
-			}
-		break;
-	}
-	if(retorno == 1){
-		qtd_bombas--;
-		bombaExplodiuMapa2();
-		modifybombs();
+			break;
+			case 4:
+				if(check(x,y+1)){
+					if(strcmp(tab2[x][y+1].str2,range_symbol) != 0 &&  strcmp(tab2[x][y+1].str2,bomb) != 0){
+						retorno = 1;
+					}
+				}
+			break;
+		}
+		if(retorno == 1){
+			qtd_bombas--;
+			bombaExplodiuMapa2();
+			modifybombs();
 
-		if(qtd_bombas > 0) bombaExplodiuMapa2(bombas[0].i,bombas[0].j); //Caso a quantidade de bombas ainda seja maior do que 0, teremos de colocar os novos F's no mapa pois agora bomba[1] pasosu a ser bomba[0].
+			if(qtd_bombas > 0) bombaExplodiuMapa2(bombas[0].i,bombas[0].j); //Caso a quantidade de bombas ainda seja maior do que 0, teremos de colocar os novos F's no mapa pois agora bomba[1] pasosu a ser bomba[0].
 
+		}
 	}
 	return retorno;
 }
@@ -569,6 +574,10 @@ void escreverPosicao(int x , int y){
 }
 
 void checkWays(int playerX,int playerY){
+		if(check(playerX,playerY) == 0){ //parado
+			move[0] -= 1;
+		}
+
 		if(check(playerX-1,playerY) == 0){ //sobe
 			move[1] -= 1;
 		}
@@ -630,7 +639,7 @@ void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 	
 		if(check(playerX-1,playerY)){ //sobe
 				if(playerX > enemyX){
-					move[1] += 1; //It holds more weight
+					move[1] += 3; //It holds more weight
 				}
 
 				if(manhattanDistance(playerX -1, enemyX,playerY,enemyY) < manhattanDistance(playerX,enemyX,playerY,enemyY)){
@@ -640,7 +649,7 @@ void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 
 		if(check(playerX,playerY-1)){ //esquerda
 				if(playerY > enemyY ){
-					move[2] += 1; //It holds  more weight
+					move[2] += 3; //It holds  more weight
 				}
 
 				if(manhattanDistance(playerX, enemyX,playerY-1,enemyY)  < manhattanDistance(playerX,enemyX,playerY,enemyY)){
@@ -652,7 +661,7 @@ void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 
 		if(check(playerX+1,playerY)){ //desce
 				if(playerX < enemyX ){ // This bombas[0].i /or j != playerX or Y is because it's starting a loop
-					move[3] += 1;
+					move[3] += 3;
 				}
 
 				if(manhattanDistance(playerX +1, enemyX,playerY,enemyY)  < manhattanDistance(playerX,enemyX,playerY,enemyY)){ 
@@ -662,7 +671,7 @@ void getcloser(int enemyX,int enemyY, int playerX, int playerY){
 
 		if(check(playerX,playerY+1)){ //direita
 				if(playerY < enemyY  && bombas[0].j != playerY){
-					move[4] += 1;
+					move[4] += 3;
 				}
 
 				if(manhattanDistance(playerX, enemyX,playerY+1,enemyY)  < manhattanDistance(playerX,enemyX,playerY,enemyY)){
@@ -840,6 +849,16 @@ void verificarBonus()
 }
 
 void escreverMapa2(){
+	/* Coloca as bombas nas posições */
+	int l, k = 0;
+	for(; l < qtd_bombas;l++){
+		bombaColocouMapa2(bombas[l].i,bombas[l].j);
+	}
+
+	for(; k < qtd_bombas_enemy;k++){
+		bombaColocouMapa2(bombas_enemy[k].i,bombas_enemy[k].j);
+	}
+
 
 	fp = fopen("mapa2.txt","w+");
 	int i, j;
@@ -874,17 +893,25 @@ void lerMapa2(){
 	}
 }
 
-void debug(int x, int y){
+void debug(int x, int y,int where){
 	fp = fopen("debug.txt","a+");
-
+/* checar os vetores de movimento */
 	// int i = 0;
 	// for(; i < 5;i++){
-	// 	fprintf(fp, "move[%d] = %d", i,move[i]);
+	// 	fprintf(fp, "move[%d] = %d ", i,move[i]);
 	// }
 	// fprintf(fp,"\n");
 
-	fprintf(fp,"x: %d , y : %d , tab[x,y] = %s",x,y,tab2[x][y].str2);
-	fprintf(fp,"\n");	
+	fprintf(fp,"x: %d , y : %d , tab[x,y] = %s , where = %d , range_symbol = %s , bomb = %s",x,y,tab2[x][y].str2,where,range_symbol,bomb);
+	fprintf(fp,"\n");
+	int i, j;
+	for(i = 0; i  < 11; i++){
+		for(j = 0; j  < 13; j++){
+			fprintf(fp,"%s%s ", tab2[i][j].str1, tab2[i][j].str2);
+		}
+		fprintf(fp, "\n");
+	}
+
 	fclose(fp);
 }
 
@@ -1097,6 +1124,14 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	avoidOldPosition(cur.i,cur.j,jogarbomba); //Solucao Temporatoria 
 	where = MAIOR(move);
 	escreverPosicao(cur.i,cur.j);
+
+
+	/*teste para colocar bombas no mapa*/
+	int w = 0;
+	for(;w <qtd_bombas;w++){
+		bombaColocouMapa2(bombas[w].i,bombas[w].j);
+	}
+
 	willexplode = explodirbomba(cur.i,cur.j,where);
 	
 	rodada++;
@@ -1105,11 +1140,13 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	escreverBonus();
 	escreverMatinhos();
 
-	escreverBombas(); //Apos finalizar as decisoes
-
 	escreverValores();
+
 	escreverMapa2();
-	debug(cur.i,cur.j);
+	
+	debug(cur.i,cur.j,where);
+	
+
 	//impressao da saida
 	printf("%d %d %d %d \n",ident,jogarbomba, where,willexplode);
 
