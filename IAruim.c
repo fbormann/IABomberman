@@ -81,7 +81,13 @@ typedef struct tabela
 tabela tab[11][13];
 //mapa secundario
 tabela tab2[11][13];
+// tabela com os pesos das posições do mapa
+int tabPeso[11][13];
 
+// Nome do nosso player
+char s[3];
+// Nome do Player inimigo
+char enemyS[3];
 
 //funcao que realiza a leitura do mapa. O mapa e passado como entrada padrao pelo programa principal, portanto, nesses casos, usem scanf normalmente.
 //usem fscanf para trabalhar com arquivos criados por voces.
@@ -138,7 +144,62 @@ void verificarMapa2()
 	}
 }
 
+// cria mapa com pesesos para cada posição
+void criarMapaPeso(){
+	/*
+		-------------------
+		| POSIÇÃO  | PESO |
+		-------------------
+		| Pnosso   |    0 |
+		-------------------
+		| pInimigo |    0 |
+		-------------------
+		| --       |    1 |
+		-------------------
+		| MM       |    3 |
+		-------------------
+		| XX       |  999 |
+		-------------------
+		| Fnosso   |    5 |
+		-------------------
+		| Finimigo |   98 |
+		-------------------
+		| Bnosso   |  999 |
+		-------------------
+		| Binimigo |  999 |
+		-------------------
+	*/
+	int i, j;
+	for (i = 0; i < 11; ++i){
+		for (j = 0; j < 13; ++j){
+			if(strcmp(tab2[i][j].str1, s) == 0) tabPeso[i][j] = 2;
+			else if(strcmp(tab2[i][j].str1, enemyS) == 0) tabPeso[i][j] = 0;
+			else if(strcmp(tab2[i][j].str2, "--") == 0) tabPeso[i][j] = 1;
+			else if(strcmp(tab2[i][j].str2, "MM") == 0) tabPeso[i][j] = 3;
+			else if(strcmp(tab2[i][j].str2, "XX") == 0) tabPeso[i][j] = 999;
+			else if(strcmp(tab2[i][j].str2, "F1") == 0) tabPeso[i][j] = 5;
+			else if(strcmp(tab2[i][j].str2, "F2") == 0) tabPeso[i][j] = 98;
+			else if(strcmp(tab2[i][j].str2, bomb) == 0) tabPeso[i][j] = 999;
+			else if(strcmp(tab2[i][j].str2, enemyBomb) == 0) tabPeso[i][j] = 999;
+			
+		}
+	}
+}
 
+// cria um .txt com os pesos do mapa
+void escreverMapaPeso(){
+
+	fp = fopen("mapaPeso.txt","w+");
+	int i, j;
+	for(i = 0; i  < 11; i++){
+		for(j = 0; j  < 13; j++){
+			// imprime só o utimo valor do peso para ficar uma matriz arrumada
+			fprintf(fp,"%d ", tabPeso[i][j]%10);
+		}
+		fprintf(fp, "\n");
+	}
+	fclose(fp);
+}
 
 //funcao retorna a posicao corrente de determinado jogador, cuja string (P1 ou P2) e passada como parametro.
 pos cur_pos(char* player)
@@ -1033,8 +1094,6 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	int i;
 	int where;
 
-	
-
 	//convercao dos identificadores
     id = atoi(argv[1]);	//identificador do Jogador
     ident = atoi(argv[2]); //identificador da partida
@@ -1053,6 +1112,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
     	criarMapa2();
     }
     	
+<<<<<<< HEAD
     verificarMapa2();
     	
 
@@ -1079,6 +1139,30 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
     enemyPos = cur_pos(enemyS);
     lerPosicao();
+=======
+    	verificarMapa2();
+    
+    	if(id==1){
+    		strcpy(s,"P1");
+    		strcpy(enemyS,"P2");
+    	}
+    	else{
+    		strcpy(enemyS,"P1");
+    		strcpy(s,"P2");
+
+    	}
+    	//pra saber qual a bomba do cara
+    	if(strcmp(enemyS,"P1") == 0){
+    		strcpy(enemyBomb,"B1");
+    		strcpy(bomb, "B2");
+    	}else{
+    		strcpy(bomb, "B1");
+    		strcpy(enemyBomb,"B2");
+    	}
+
+    	enemyPos = cur_pos(enemyS);
+    	lerPosicao();
+>>>>>>> criado um tabela com o peso de cada posicao
 	posIam = cur_pos(s);
 	cur = cur_pos(s); // o parametro a ser passado depende se o jogador atual e 1 o 2
 	lerBombas(); //Antes de inicializar qualquer decisao
@@ -1086,6 +1170,9 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
 	posMatinhos();
 	adicionar_bonus();
+
+	criarMapaPeso();
+	escreverMapaPeso(); // debug mapa pesso
 
 	jogarbomba = soltarbomba(cur.i,cur.j,enemyPos.i,enemyPos.j);
 	if(jogarbomba){
