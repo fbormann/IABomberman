@@ -15,6 +15,7 @@ int modificacao;
 int move[5];
 
 char range_symbol[3];
+char e_range_symbol[3];
 
 int plantedBomb = 0; //If it planted a bomb it looks into running a away from it.
 
@@ -1133,9 +1134,13 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
     	if(strcmp(enemyS,"P1") == 0){
     		strcpy(enemyBomb,"B1");
     		strcpy(bomb, "B2");
+    		strcpy(range_symbol, "F2");
+    		strcpy(e_range_symbol, "F1");
     	}else{
     		strcpy(bomb, "B1");
     		strcpy(enemyBomb,"B2");
+    		strcpy(range_symbol, "F1");
+    		strcpy(e_range_symbol, "F2");
     	}
 
     	enemyPos = cur_pos(enemyS);
