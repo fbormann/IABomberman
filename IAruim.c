@@ -275,18 +275,23 @@ void checkSafety(int x, int y){
 	}
 }
 
-void bombaColocouMapa2(int x, int y)
-{
+// coloca os FF no mapa2 
+void bombaColocouMapa2(int x, int y){
 	strcpy(tab2[x][y].str2, bomb);
-	int i, j, matoAntes;
-	for(j = 1; j<5; j++)
-	{
+	int i, j, matoAntes, paredeAntes;
+	for(j = 1; j<5; j++){
 		matoAntes = 0;
-		for(i = 1; i<=range; i++)
-		{
+		paredeAntes = 0;
+		for(i = 1; i<=range; i++){
+			// verifica se teve mato em alguma posição anterios
 			if(checkPos(x+(dx[j]*i), y+(dy[j]*i)) && strcmp(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "MM") == 0) 
 				matoAntes = 1;
-			if(check(x+(dx[j]*i), y+(dy[j]*i)) && !matoAntes)	
+			// verifica se teve parede em alguma posição anterior
+			else if(checkPos(x+(dx[j]*i), y+(dy[j]*i)) && strcmp(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "XX") == 0) 
+				paredeAntes = 1;
+			
+			// coloca FF no mapa se não tive passado anteriormente por uma parece ou mato
+			if(check(x+(dx[j]*i), y+(dy[j]*i)) && !matoAntes && !paredeAntes)	
 				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, range_symbol);			
 		}
 	}
@@ -1112,34 +1117,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
     	criarMapa2();
     }
     	
-<<<<<<< HEAD
-    verificarMapa2();
-    	
 
-    char s[3];
-    char enemyS[3];
-    if(id==1){
-    	strcpy(s,"P1");
-    	strcpy(enemyS,"P2");
-    	strcpy(range_symbol,"F1");
-    }
-    else{
-    	strcpy(enemyS,"P1");
-    	strcpy(s,"P2");
-    	strcpy(range_symbol,"F2");
-    }
-    //pra saber qual a bomba do cara
-    if(strcmp(enemyS,"P1") == 0){
-    	strcpy(enemyBomb,"B1");
-    	strcpy(bomb, "B2");
-    }else{
-    	strcpy(bomb, "B1");
-    	strcpy(enemyBomb,"B2");
-    }
-
-    enemyPos = cur_pos(enemyS);
-    lerPosicao();
-=======
     	verificarMapa2();
     
     	if(id==1){
@@ -1162,7 +1140,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
     	enemyPos = cur_pos(enemyS);
     	lerPosicao();
->>>>>>> criado um tabela com o peso de cada posicao
+
 	posIam = cur_pos(s);
 	cur = cur_pos(s); // o parametro a ser passado depende se o jogador atual e 1 o 2
 	lerBombas(); //Antes de inicializar qualquer decisao
