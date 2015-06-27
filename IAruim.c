@@ -42,10 +42,12 @@ int willexplode; //Indica se ira jogar bomba nesta posicao ou nao;
 //no maximmo pode ter 5 bombas(TMB)
 info_bomba bombas[5];// guarda as posicoes da bomba;
 int qtd_bombas = 0;
+int qtd_bombas_max = 2;
 int range = 2; //Alcance das bombas;
 
 info_bomba bombas_enemy[5];
 int qtd_bombas_enemy = 0;
+int qtd_bombas_max_enemy = 2;
 int range_enemy = 2;
 
 // nome das nossas bombas
@@ -499,12 +501,12 @@ void escreverBombas(){
 	fp = fopen("bombas.txt","w+");
 	int i = 0;
 	//nossas bombas
-	fprintf(fp, "%d %d\n",qtd_bombas,range); //tem que guardar o range atual
+	fprintf(fp, "%d %d %d\n",qtd_bombas,qtd_bombas_max,range); //tem que guardar o range atual
 	for(; i  < qtd_bombas; i++){
 		fprintf(fp,"%d %d %d ", bombas[i].range, bombas[i].i,bombas[i].j);
 	}
 	//bombas do inimigo
-	fprintf(fp, "\n%d %d\n", qtd_bombas_enemy, range_enemy);
+	fprintf(fp, "\n%d %d %d\n", qtd_bombas_enemy, qtd_bombas_max_enemy, range_enemy);
 	for(i = 0; i < qtd_bombas_enemy; i++){
 		fprintf(fp, "%d %d %d ", bombas_enemy[i].range, bombas_enemy[i].i, bombas_enemy[i].j);
 	}
@@ -518,12 +520,12 @@ void lerBombas(){
 	if(fp != NULL){
 		int i = 0;
 		//nossas bombas
-		fscanf(fp," %d %d", &qtd_bombas, &range);
+		fscanf(fp," %d %d %d", &qtd_bombas, &qtd_bombas_max, &range);
 		for(; i  < qtd_bombas; i++){
 			fscanf(fp,"%d %d %d ", &bombas[i].range, &bombas[i].i, &bombas[i].j);
 		}
 		//bombas do inimigo
-		fscanf(fp, " %d %d", &qtd_bombas_enemy, &range_enemy);
+		fscanf(fp, " %d %d %d", &qtd_bombas_enemy, &qtd_bombas_max_enemy, &range_enemy);
 		for(i = 0; i < qtd_bombas_enemy; i++){
 			fscanf(fp, "%d %d %d ", &bombas_enemy[i].range, &bombas_enemy[i].i, &bombas_enemy[i].j);
 		}
@@ -887,6 +889,8 @@ void verificarBonus()
 		//se o bonus nao estiver mais la
 		if(strcmp(tab[bonus_range[i].i][bonus_range[i].j].str2, "+F") != 0) 
 		{
+			if(strcmp(tab[bonus_range[i].i][bonus_range[i].j].str1, s) == 0) range++;
+			else range_enemy++;
 			//caso seja o ultimo bonus do array
 			if(i == qtdBonusRange-1) qtdBonusRange--;
 			//caso NAO seja o ultimo bonus do array
@@ -901,8 +905,10 @@ void verificarBonus()
 	for(i = 0; i < qtdBonusBomba; i++)
 	{
 		//se o bonus nao estiver mais la
-		if(strcmp(tab[bonus_bombas[i].i][bonus_bombas[i].j].str2, "+F") != 0) 
+		if(strcmp(tab[bonus_bombas[i].i][bonus_bombas[i].j].str2, "+B") != 0) 
 		{
+			if(strcmp(tab[bonus_bombas[i].i][bonus_bombas[i].j].str1, s) == 0) qtd_bombas_max++;
+			else qtd_bombas_max_enemy++;
 			//caso seja o ultimo bonus do array
 			if(i == qtdBonusBomba-1) qtdBonusBomba--;
 			//caso NAO seja o ultimo bonus do array
@@ -1205,6 +1211,8 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	willexplode = explodirbomba(cur.i,cur.j,where);
 	
 	rodada++;
+
+	verificarBonus();
 
 	escreverBombas(); //Apos finalizar as decisoes
 	escreverBonus();
