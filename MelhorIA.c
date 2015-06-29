@@ -1201,6 +1201,52 @@ void pathfinding2(int x, int y, int pesoAnt){
 	pathfinding2(x-1, y, pf2[x][y]);*/
 }
 
+peso_cnt pf3[11][13];
+pospf all_pos_bombas[4*11*13];
+
+void pathfinding_bombas(int x, int y, int pesoAnt){
+	pospf init;
+	init.i = x;
+	init.j = y;
+	init.pa = pesoAnt;
+	int num_pos = 0, k, w;
+	all_pos_bombas[num_pos++] = init;
+	for(k = 0; k < num_pos; k++){
+		int i = all_pos_bombas[k].i;
+		int j = all_pos_bombas[k].j;
+		int pa = all_pos_bombas[k].pa;
+		int temp;
+		if(i < 0 || i >= 11) continue;
+		if(j < 0 || j >= 13) continue;
+		if(tabPeso[i][j] == 999) continue;
+		if(tabPeso[i][j] == 3) continue;
+		//if(pf2[i][j].cnt == 4) continue;
+		if(pf3[i][j].peso != 0) continue;
+		if(strcmp(tab2[i][j].str1, enemyS) == 0 || strcmp(tab2[i][j].str1, s) == 0) temp = 1;
+		else if(strcmp(tab2[i][j].str2, range_symbol) == 0) temp = 100;
+		else temp = tabPeso[i][j];
+		/*if(temp+pa < pf2[i][j].peso)*/ pf3[i][j].peso = temp+pa;
+		//pf2[i][j].cnt++;
+		for(w = 1; w < 5; w++){
+			pospf novo;
+			novo.i = i+dx[w];
+			novo.j = j+dy[w];
+			novo.pa = pf3[i][j].peso;
+			all_pos_bombas[num_pos++] = novo;
+		}
+	}
+	/*if(checkPos(x, y) == 0) return;
+	else if(pf2[x][y] != 0) return;
+	int temp;
+	if(strcmp(tab2[x][y].str1, enemyS) == 0 || strcmp(tab2[x][y].str1, s) == 0) temp = 1;
+	else temp = tabPeso[x][y];
+	pf2[x][y] = pesoAnt+temp;
+	pathfinding2(x, y+1, pf2[x][y]);
+	pathfinding2(x+1, y, pf2[x][y]);
+	pathfinding2(x, y-1, pf2[x][y]);
+	pathfinding2(x-1, y, pf2[x][y]);*/
+}
+
 int pf_andar(int x, int y){
 	int k, i, j, dir, temp = 999;
 	for(k = 1; k < 5; k++){
@@ -1217,16 +1263,40 @@ int pf_andar(int x, int y){
 	return dir;
 }
 
+int pf_fugir_bomba(int x, int y){
+	int k, i, j, dir, temp = 999;
+	for(k = 1; k < 5; k++){
+		i = x+dx[k];
+		j = y+dy[k];
+		if(checkPos(i, j)){
+			if(pf3[i][j].peso == 0) continue;
+			if(pf3[i][j].peso < temp){
+				temp = pf3[i][j].peso;
+				dir = k;
+			}
+		}
+	}
+	return dir;
+}
+
 void debug(){
 	fp = fopen("debug.txt","a+");
 	int i, j;
+	fprintf(fp, "PF2\n");
 	for(i = 0; i < 11; i++){
 		for(j = 0; j < 13; j++){
 			fprintf(fp, "%d ", pf2[i][j].peso);
 		}
 		fprintf(fp, "\n");
 	}
-	fprintf(fp, "\n");
+	fprintf(fp, "PF3\n");
+	for(i = 0; i < 11; i++){
+		for(j = 0; j < 13; j++){
+			fprintf(fp, "%d ", pf3[i][j].peso);
+		}
+		fprintf(fp, "\n");
+	}
+	fprintf(fp, "\n\n");
 	fclose(fp);
 }
 
@@ -1310,7 +1380,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	for(l = 0; l < 11; l++){
 		for(m = 0; m < 13; m++){
 			pf2[l][m].peso = 0;
-			pf2[l][m].cnt = 0;
+			pf3[l][m].peso = 0;
 		}
 	}
 
@@ -1318,8 +1388,8 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
 	//ou seja, se tiver com uma bomba nossa, ele vai se afastar dela
 	if(qtd_bombas > 0){
-		pathfinding_bomb_escape(cur.i, cur.j, 0, 1);
-		where = dir_fixo2;
+		pathfinding_bombas(cur.i, cur.j, 0);
+		where = pf_fugir_bomba(cur.i, cur.j);
 	}else{
 		pathfinding2(enemyPos.i, enemyPos.j, 0);
 		where = pf_andar(cur.i, cur.j);
