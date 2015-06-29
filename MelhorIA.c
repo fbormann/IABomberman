@@ -223,7 +223,7 @@ pos cur_pos(char* player)
 }
 
 int theyAreTogether(){
-	
+	int i, j;
 	for(i = 0; i < 11; i++){
 		for(j = 0; j < 13; j++)
 		{
@@ -1371,7 +1371,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	}else{
 		posIam = cur_pos("P3");
 		cur.i = posIam.i;
-		cur.j = posIAm.j;
+		cur.j = posIam.j;
 		enemyPos.i = posIam.i;
 		enemyPos.j = posIam.j;
  	}
