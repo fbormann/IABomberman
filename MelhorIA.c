@@ -222,6 +222,20 @@ pos cur_pos(char* player)
 	}
 }
 
+int theyAreTogether(){
+	
+	for(i = 0; i < 11; i++){
+		for(j = 0; j < 13; j++)
+		{
+			if(strcmp(tab[i][j].str1, "P3") == 0 )
+			{
+				return 1;
+			}
+		}
+	}
+	return 0;
+}
+
 
 /*
 Returns the distance between two objects;
@@ -1326,33 +1340,43 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
     	verificarMapa2();
     
-    	if(id==1){
-    		strcpy(s,"P1");
-    		strcpy(enemyS,"P2");
-    	}
-    	else{
-    		strcpy(enemyS,"P1");
-    		strcpy(s,"P2");
+    if(id==1){
+    	strcpy(s,"P1");
+    	strcpy(enemyS,"P2");
+    }
+    else{
+    	strcpy(enemyS,"P1");
+    	strcpy(s,"P2");
 
-    	}
+   	}
     	//pra saber qual a bomba do cara
-    	if(strcmp(enemyS,"P1") == 0){
-    		strcpy(enemyBomb,"B1");
-    		strcpy(bomb, "B2");
-    		strcpy(range_symbol, "F2");
-    		strcpy(e_range_symbol, "F1");
-    	}else{
-    		strcpy(bomb, "B1");
-    		strcpy(enemyBomb,"B2");
-    		strcpy(range_symbol, "F1");
-    		strcpy(e_range_symbol, "F2");
-    	}
+    if(strcmp(enemyS,"P1") == 0){
+    	strcpy(enemyBomb,"B1");
+    	strcpy(bomb, "B2");
+    	strcpy(range_symbol, "F2");
+    	strcpy(e_range_symbol, "F1");
+    }else{
+    	strcpy(bomb, "B1");
+    	strcpy(enemyBomb,"B2");
+    	strcpy(range_symbol, "F1");
+    	strcpy(e_range_symbol, "F2");
+   	}
 
+   	if(!theyAreTogether()){
     	enemyPos = cur_pos(enemyS);
     	lerPosicao();
 
-	posIam = cur_pos(s);
-	cur = cur_pos(s); // o parametro a ser passado depende se o jogador atual e 1 o 2
+		posIam = cur_pos(s);
+		cur = cur_pos(s); // o parametro a ser passado depende se o jogador atual e 1 o 2
+	}else{
+		posIam = cur_pos("P3");
+		cur.i = posIam.i;
+		cur.j = posIAm.j;
+		enemyPos.i = posIam.i;
+		enemyPos.j = posIam.j;
+ 	}
+
+ 	
 	lerBombas(); //Antes de inicializar qualquer decisao
 	lerBonus();
 
@@ -1396,11 +1420,6 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	}
 	debug();
 
-	//bealive(cur.i,cur.j,jogarbomba);
-	//checkWays(cur.i,cur.j);
-	//getcloser(enemyPos.i,enemyPos.j,cur.i,cur.j);
-
-	//where = dir_fixo;
 	escreverPosicao(cur.i,cur.j);
 
 
