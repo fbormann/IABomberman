@@ -293,7 +293,7 @@ void checkSafety(int x, int y){
 }
 
 // coloca os FF no mapa2 
-void bombaColocouMapa2(int x, int y){
+/*void bombaColocouMapa2(int x, int y){
 	strcpy(tab2[x][y].str2, bomb);
 	int i, j, matoAntes, paredeAntes;
 	for(j = 1; j<5; j++){
@@ -310,6 +310,37 @@ void bombaColocouMapa2(int x, int y){
 			// coloca FF no mapa se não tive passado anteriormente por uma parece ou mato
 			if(check(x+(dx[j]*i), y+(dy[j]*i)) && !matoAntes && !paredeAntes)	
 				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, range_symbol);			
+		}
+	}
+}*/
+
+// coloca os FF no mapa2 
+void bombaColocouMapa2(int x, int y, int f){
+	int avoidPos;
+	// verifica que direção os FF devem evitar, para no caso de ser encadeado
+	// caso f = 0, não a direção a ser evitada
+	if(f == 0) avoidPos = 0;
+	// caso f = 2, deve se evitar a direção da esquerda, é necessario esse if pois seria a direção errads no calculo abaixo
+	else if(f == 2) avoidPos = 4;
+	else avoidPos = (f+2)%4;
+	
+	strcpy(tab2[x][y].str2, "B1");
+	int i, j, matoAntes, paredeAntes;
+	for(j = 1; j<5; j++){
+		// direção que deve ser evitada
+		if(j == avoidPos) continue;
+		matoAntes = 0;
+		paredeAntes = 0;
+		for(i = 1; i<=2; i++){
+			if(checkPos(x+(dx[j]*i), y+(dy[j]*i)) && strcmp(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "MM") == 0) 
+				matoAntes = 1;
+			else if(checkPos(x+(dx[j]*i), y+(dy[j]*i)) && strcmp(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "XX") == 0) 
+				paredeAntes = 1;
+			// caso ache uma bomba no caminho do FF
+			else if(checkPos(x+(dx[j]*i), y+(dy[j]*i)) && strcmp(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "B1") == 0) 
+				bombaColocouMapa2(x+(dx[j]*i), y+(dy[j]*i), j);
+			if(check(x+(dx[j]*i), y+(dy[j]*i)) && !matoAntes && !paredeAntes)	
+				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, "FF");			
 		}
 	}
 }
@@ -339,7 +370,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 			bombas[qtd_bombas].j = y;
 			bombas[qtd_bombas].range = range;
 			qtd_bombas++;
-			bombaColocouMapa2(x, y);
+			bombaColocouMapa2(x, y, 0);
 			return 1;
 		}			
 
@@ -354,7 +385,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
-				bombaColocouMapa2(x, y);
+				bombaColocouMapa2(x, y, 0);
 				return 1;
 
 			}
@@ -370,7 +401,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
-				bombaColocouMapa2(x, y);
+				bombaColocouMapa2(x, y, 0);
 				return 1;
 
 			}
@@ -386,7 +417,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
-				bombaColocouMapa2(x, y);
+				bombaColocouMapa2(x, y, 0);
 				return 1;
 
 			}
@@ -403,7 +434,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
-				bombaColocouMapa2(x, y);
+				bombaColocouMapa2(x, y, 0);
 				return 1;
 
 			}
@@ -556,7 +587,7 @@ void modifybombs(){
 }
 
 // metodo para retirar B# e FF da bomba que explodiu
-void bombaExplodiuMapa2()
+/*void bombaExplodiuMapa2()
 {
 	int i = bombas[0].i;
 	int j = bombas[0].j;
@@ -574,8 +605,43 @@ void bombaExplodiuMapa2()
 			}
 		}
 	}
-}
+}*/
 
+// metodo para retirar B# e FF da bomba que explodiu
+void bombaExplodiuMapa2(int nB, int f){
+	int avoidPos;
+	// verifica que direção os FF devem evitar, para no caso de ser encadeado
+	// caso f = 0, não a direção a ser evitada
+	if(f == 0) avoidPos = 0;
+	else if(f == 1) avoidPos = 3; 
+	else if(f == 2) avoidPos = 4;
+	else if(f == 3) avoidPos = 1;
+	else if(f == 4) avoidPos = 2;
+
+	debug(avoidPos);
+
+	int i = bombas[nB].i;
+	int j = bombas[nB].j;
+	int range = 2;
+	// limpa a marca da B#
+	strcpy(tab2[i][j].str2, "--");
+	int k, l;
+	// limpa os FF
+	for(l = 1; l<5; l++){
+		if(l == avoidPos) continue;
+		for(k = 1; k<=range; k++){
+			if(check(i+(dx[l]*k), j+(dy[l]*k)) && strcmp(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str2, "B1") == 0){
+				int b = queBombaEhEssa(i+(dx[l]*k), j+(dy[l]*k));
+				bombaExplodiuMapa2(b, l);
+			} 	
+			else if(check(i+(dx[l]*k), j+(dy[l]*k))){
+				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str1, "--");
+				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str2, "--");
+			}
+		}
+	}
+
+}
 
 //x is the player position in the x-axis
 //y is the player position in the y-axis
@@ -624,11 +690,11 @@ int explodirbomba(int x,int y,int where){
 		}
 		if(retorno == 1){
 			qtd_bombas--;
-			bombaExplodiuMapa2();
+			bombaExplodiuMapa2(0,0);
 			modifybombs();
 
-			if(qtd_bombas > 0) bombaExplodiuMapa2(bombas[0].i,bombas[0].j); //Caso a quantidade de bombas ainda seja maior do que 0, teremos de colocar os novos F's no mapa pois agora bomba[1] pasosu a ser bomba[0].
-
+			//if(qtd_bombas > 0) bombaExplodiuMapa2(bombas[0].i,bombas[0].j); //Caso a quantidade de bombas ainda seja maior do que 0, teremos de colocar os novos F's no mapa pois agora bomba[1] pasosu a ser bomba[0].
+			if(qtd_bombas > 0) bombaColocouMapa2(bombas[0].i,bombas[0].j, 0);
 		}
 	}
 	return retorno;
@@ -827,12 +893,12 @@ void verificarBonus()
 void escreverMapa2(){
 	/* Coloca as bombas nas posições */
 	int l, k = 0;
-	for(; l < qtd_bombas;l++){
-		bombaColocouMapa2(bombas[l].i,bombas[l].j);
-	}
+	//for(; l < qtd_bombas;l++){
+	//	bombaColocouMapa2(bombas[l].i,bombas[l].j);
+	//}
 
 	for(; k < qtd_bombas_enemy;k++){
-		bombaColocouMapa2(bombas_enemy[k].i,bombas_enemy[k].j);
+		bombaColocouMapa2(bombas_enemy[k].i,bombas_enemy[k].j, 0);
 	}
 
 
@@ -1390,9 +1456,9 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
 	jogarbomba = soltarbomba(cur.i,cur.j,enemyPos.i,enemyPos.j);
 	int w = 0;
-	for(;w <qtd_bombas;w++){
-		bombaColocouMapa2(bombas[w].i,bombas[w].j);
-	}
+	//for(;w <qtd_bombas;w++){
+	//	bombaColocouMapa2(bombas[w].i,bombas[w].j);
+	//}
 
 	checkSafety(cur.i,cur.j);
 	//ver as bombas do inimigo
