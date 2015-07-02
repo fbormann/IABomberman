@@ -444,10 +444,6 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 	return 0;
 }
 
-
-
-
-
 	//funcao: determina se caso voce exploda a ultima bomba, voce continue vivo ou qual lugar possui a maior distancia em relacao a bomba;
 void bealive(int x, int y, int jogarbomba){
 	if(qtd_bombas > 0){
@@ -606,6 +602,17 @@ void modifybombs(){
 		}
 	}
 }*/
+
+int queBombaEhEssa(int x, int y){
+	int qualEhBomba = -1;
+	int i;
+	for(i = 0; i < qtd_bombas; i++){
+		if(bombas[i].i == x &&  bombas[i].j == y){
+			qualEhBomba = i; break;
+		}
+	}
+	return qualEhBomba;
+}
 
 // metodo para retirar B# e FF da bomba que explodiu
 void bombaExplodiuMapa2(int nB, int f){
