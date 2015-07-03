@@ -326,7 +326,7 @@ void bombaColocouMapa2(int x, int y,int isplayer){
 
 	//funcao se determina se devo soltar uma bomba ou nao
 int soltarbomba(int x, int y,int enemyX,int enemyY){
-	if(qtd_bombas < qtd_bombas_max && strcmp(tab2[x][y].str2,range_symbol) != 0){
+	if(qtd_bombas < 1 && strcmp(tab2[x][y].str2,range_symbol) != 0){
 		int impossibleWays = 0;
 		if(!check(x,y+1)){
 			impossibleWays++;
