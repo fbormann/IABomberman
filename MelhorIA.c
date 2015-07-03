@@ -932,11 +932,13 @@ void criarMapa2(){
 	}
 }
 
+int identNosso = 0;
+
 void lerMatinhos(){
 	int i;
 	fp = fopen("matinhos.txt","r+");
 	if(fp != NULL){
-		fscanf(fp,"%d %d ",&rodada,&qtdMatinhos);
+		fscanf(fp,"%d %d %d ", &identNosso,&rodada,&qtdMatinhos);
 		for(i = 0; i < qtdMatinhos; i++){
 			fscanf(fp," %d %d", &matinhos[i].i, &matinhos[i].j);
 		}
@@ -947,7 +949,7 @@ void lerMatinhos(){
 void escreverMatinhos(){
 	int i;
 	fp = fopen("matinhos.txt","w+");
-	fprintf(fp,"%d %d \n",rodada,qtdMatinhos);
+	fprintf(fp,"%d %d %d \n",ident,rodada,qtdMatinhos);
 	for(i = 0; i < qtdMatinhos; i++){
 		fprintf(fp, "%d %d ", matinhos[i].i, matinhos[i].j);
 	}
@@ -1384,7 +1386,21 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 
     leitura();
     lerMatinhos();
-    	
+    
+    lerBombas();
+    
+    if(ident != identNosso+1){
+    	rodada = 1;
+    	qtd_bombas = 0;
+    	qtd_bombas_max = 2;
+    	range = 2;
+    	qtd_bombas_enemy = 0;
+    	qtd_bombas_max_enemy = 2;
+    	range_enemy = 2;
+    	qtdMatinhos = 0;
+    	qtdBonusRange = 0;
+    	qtdBonusBomba = 0;
+    }	
 
     if(rodada != 1){
     	lerMapa2();
@@ -1432,7 +1448,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
  	}
 
  	
-	lerBombas(); //Antes de inicializar qualquer decisao
+	//lerBombas(); //Antes de inicializar qualquer decisao
 	lerBonus();
 
 	posMatinhos();
