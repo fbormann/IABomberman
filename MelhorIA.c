@@ -181,7 +181,7 @@ void criarMapaPeso(){
 			else if(strcmp(tab2[i][j].str2, "MM") == 0) tabPeso[i][j] = 3;
 			else if(strcmp(tab2[i][j].str2, "XX") == 0) tabPeso[i][j] = 999;
 			else if(strcmp(tab2[i][j].str2, range_symbol) == 0) tabPeso[i][j] = 5;
-			else if(strcmp(tab2[i][j].str2, e_range_symbol) == 0) tabPeso[i][j] = 98;
+			else if(strcmp(tab2[i][j].str2, e_range_symbol) == 0) tabPeso[i][j] = 999;
 			else if(strcmp(tab2[i][j].str2, bomb) == 0) tabPeso[i][j] = 999;
 			else if(strcmp(tab2[i][j].str2, enemyBomb) == 0) tabPeso[i][j] = 999;
 			
@@ -293,8 +293,13 @@ void checkSafety(int x, int y){
 }
 
 // coloca os FF no mapa2 
-void bombaColocouMapa2(int x, int y){
-	strcpy(tab2[x][y].str2, bomb);
+void bombaColocouMapa2(int x, int y,int isplayer){
+
+	if(isplayer){
+		strcpy(tab2[x][y].str2, bomb);
+	}else{
+		strcpy(tab2[x][y].str2, enemyBomb);
+	}
 	int i, j, matoAntes, paredeAntes;
 	for(j = 1; j<5; j++){
 		matoAntes = 0;
@@ -308,15 +313,20 @@ void bombaColocouMapa2(int x, int y){
 				paredeAntes = 1;
 			
 			// coloca FF no mapa se não tive passado anteriormente por uma parece ou mato
-			if(check(x+(dx[j]*i), y+(dy[j]*i)) && !matoAntes && !paredeAntes)	
-				strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, range_symbol);			
+			if(check(x+(dx[j]*i), y+(dy[j]*i)) && !matoAntes && !paredeAntes){	
+				if(isplayer){
+					strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, range_symbol);
+				}else{
+					strcpy(tab2[x+(dx[j]*i)][y+(dy[j]*i)].str2, e_range_symbol);
+				}
+			}			
 		}
 	}
 }
 
 	//funcao se determina se devo soltar uma bomba ou nao
 int soltarbomba(int x, int y,int enemyX,int enemyY){
-	if(qtd_bombas < 1){
+	if(qtd_bombas < qtd_bombas_max && strcmp(tab2[x][y].str2,range_symbol) != 0){
 		int impossibleWays = 0;
 		if(!check(x,y+1)){
 			impossibleWays++;
@@ -339,7 +349,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 			bombas[qtd_bombas].j = y;
 			bombas[qtd_bombas].range = range;
 			qtd_bombas++;
-			bombaColocouMapa2(x, y);
+			bombaColocouMapa2(x, y,1);
 			return 1;
 		}			
 
@@ -354,7 +364,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
-				bombaColocouMapa2(x, y);
+				bombaColocouMapa2(x, y,1);
 				return 1;
 
 			}
@@ -370,7 +380,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
-				bombaColocouMapa2(x, y);
+				bombaColocouMapa2(x, y,1);
 				return 1;
 
 			}
@@ -386,7 +396,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
-				bombaColocouMapa2(x, y);
+				bombaColocouMapa2(x, y,1);
 				return 1;
 
 			}
@@ -403,7 +413,7 @@ int soltarbomba(int x, int y,int enemyX,int enemyY){
 				bombas[qtd_bombas].j = y;
 				bombas[qtd_bombas].range = range;
 				qtd_bombas++;
-				bombaColocouMapa2(x, y);
+				bombaColocouMapa2(x, y,1);
 				return 1;
 
 			}
@@ -555,20 +565,31 @@ void modifybombs(){
 	}
 }
 
+void modifybombs2(int n){
+	int i = n;
+	for(;i<qtd_bombas;i++){
+		bombas[i] = bombas[i+1];
+	}
+}
+
 // metodo para retirar B# e FF da bomba que explodiu
-void bombaExplodiuMapa2()
+void bombaExplodiuMapa2(int i , int j , int range)
 {
-	int i = bombas[0].i;
-	int j = bombas[0].j;
-	int range = bombas[0].range;
 	strcpy(tab2[i][j].str2, "--");
-	int k, l;
+	int k, l,m;
 	for(l = 1; l<5; l++)
 	{
 		for(k = 1; k<=range; k++)
 		{
 			if(check(i+(dx[l]*k), j+(dy[l]*k)))
 			{
+				for(m = 1; m < qtd_bombas;m++){
+					if((i+(dx[l]*k)) == bombas[m].i && (j+(dy[l]*k)) == bombas[m].j){
+						//strcpy(tab2[bombas[m].i][bombas[m].j].str2, "--");
+						bombaExplodiuMapa2(bombas[m].i,bombas[m].j,bombas[m].range);
+					}
+				}
+
 				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str1, "--");
 				strcpy(tab2[i+(dx[l]*k)][j+(dy[l]*k)].str2, "--");
 			}
@@ -624,10 +645,10 @@ int explodirbomba(int x,int y,int where){
 		}
 		if(retorno == 1){
 			qtd_bombas--;
-			bombaExplodiuMapa2();
+			bombaExplodiuMapa2(bombas[0].i,bombas[0].j,bombas[0].range);
 			modifybombs();
 
-			if(qtd_bombas > 0) bombaExplodiuMapa2(bombas[0].i,bombas[0].j); //Caso a quantidade de bombas ainda seja maior do que 0, teremos de colocar os novos F's no mapa pois agora bomba[1] pasosu a ser bomba[0].
+			if(qtd_bombas > 0) bombaExplodiuMapa2(bombas[0].i,bombas[0].j,bombas[0].range); //Caso a quantidade de bombas ainda seja maior do que 0, teremos de colocar os novos F's no mapa pois agora bomba[1] pasosu a ser bomba[0].
 
 		}
 	}
@@ -827,15 +848,34 @@ void verificarBonus()
 }
 
 void escreverMapa2(){
+
+
+
 	/* Coloca as bombas nas posições */
 	int l, k = 0;
-	for(; l < qtd_bombas;l++){
-		bombaColocouMapa2(bombas[l].i,bombas[l].j);
+	for(l = 0; l < qtd_bombas;l++){
+		bombaColocouMapa2(bombas[l].i,bombas[l].j,1);//Player
 	}
 
-	for(; k < qtd_bombas_enemy;k++){
-		bombaColocouMapa2(bombas_enemy[k].i,bombas_enemy[k].j);
+	for(k = 0; k < qtd_bombas_enemy;k++){
+		bombaColocouMapa2(bombas_enemy[k].i,bombas_enemy[k].j,0); //As bombas do inimigo
 	}
+
+
+	/* Checa se uma B3 existe */
+	
+	for(l = 0; l < qtd_bombas;l++){
+		for(k = 0; k < qtd_bombas_enemy;k++){
+			if(bombas[l].i == bombas_enemy[k].i && bombas[l].j == bombas_enemy[k].j){//Então encontramos uma bomba B3
+
+			}
+			
+		}
+	}
+
+	
+
+
 
 
 	fp = fopen("mapa2.txt","w+");
@@ -1302,7 +1342,7 @@ int pf_fugir_bomba(int x, int y){
 void debug(){
 	fp = fopen("debug.txt","a+");
 	int i, j;
-	fprintf(fp, "PF2\n");
+	/*fprintf(fp, "PF2\n");
 	for(i = 0; i < 11; i++){
 		for(j = 0; j < 13; j++){
 			fprintf(fp, "%d ", pf2[i][j].peso);
@@ -1316,7 +1356,16 @@ void debug(){
 		}
 		fprintf(fp, "\n");
 	}
-	fprintf(fp, "\n\n");
+	fprintf(fp, "\n\n");*/
+
+	for(i = 0; i < 11;i++){
+		fprintf(fp,"\n");
+		for(j = 0; j < 13;j++){
+				fprintf(fp,"%s%s ",tab2[i][j].str1,tab2[i][j].str2);
+		}
+	}
+	fprintf(fp,"\n");
+
 	fclose(fp);
 }
 
@@ -1397,10 +1446,10 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	jogarbomba = soltarbomba(cur.i,cur.j,enemyPos.i,enemyPos.j);
 	int w = 0;
 	for(;w <qtd_bombas;w++){
-		bombaColocouMapa2(bombas[w].i,bombas[w].j);
+		bombaColocouMapa2(bombas[w].i,bombas[w].j,1);
 	}
 
-	checkSafety(cur.i,cur.j);
+	//checkSafety(cur.i,cur.j);
 	//ver as bombas do inimigo
 	verificar_bombas();
 	bombas_inimigo(enemyPos.i,enemyPos.j);
@@ -1439,7 +1488,7 @@ int main(int argc, char *argv[])//a assinatura da funcao principal deve ser dess
 	escreverBonus();
 	escreverMatinhos();
 
-	escreverValores();
+	//escreverValores();
 
 	escreverMapa2();
 	
